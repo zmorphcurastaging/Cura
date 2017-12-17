@@ -45,6 +45,7 @@ class SimulationView(View):
     def __init__(self):
         super().__init__()
 
+        self._layer_data = None
         self._max_layers = 0
         self._current_layer_num = 0
         self._minimum_layer_num = 0
@@ -170,7 +171,36 @@ class SimulationView(View):
     def setSimulationRunning(self, running):
         self._simulation_running = running
 
+    def getPositionInfo(self):
+        if self._layer_data is None:
+            return ""
+
+        layer = self._layer_data.getLayer(self._current_layer_num)
+        index = self._current_path_num
+        offset = 0
+        position_info = None
+        for polygon in layer.polygons:
+            # The size indicates all values in the two-dimension array, and the second dimension is
+            # always size 3 because we have 3D points.
+            if index >= polygon.data.size // 3 - offset:
+                index -= polygon.data.size // 3 - offset
+                offset = 1  # This is to avoid the first point when there is more than one polygon, since has the same value as the last point in the previous polygon
+                continue
+            # The head position is calculated and translated
+            position_info = {"x" : polygon.data[index + offset][0],
+                             "y" : polygon.data[index + offset][2],
+                             "z" : polygon.data[index + offset][1],
+                             "feedrate" : polygon.lineFeedrates[index + offset - 1][0] if index != 0 else 0,
+                             "type" : polygon.types[index + offset - 1][0] if index != 0 else 0}
+            break
+
+        if position_info is None:
+            return ""
+
+        return "X{0:.2f} Y{1:.2f} Z{2:.2f} F{3:.2f} T{4}".format(position_info["x"], position_info["y"], position_info["z"], position_info["feedrate"], position_info["type"])
+
     def resetLayerData(self):
+        self._layer_data = None
         self._current_layer_mesh = None
         self._current_layer_jumps = None
         self._max_feedrate = sys.float_info.min
@@ -331,13 +361,15 @@ class SimulationView(View):
             layer_data = node.callDecoration("getLayerData")
             if not layer_data:
                 continue
+            # Cache layer data
+            self._layer_data = layer_data
 
             self.setActivity(True)
             min_layer_number = sys.maxsize
             max_layer_number = -sys.maxsize
-            for layer_id in layer_data.getLayers():
+            for layer_id in self._layer_data.getLayers():
                 # Store the max and min feedrates and thicknesses for display purposes
-                for p in layer_data.getLayer(layer_id).polygons:
+                for p in self._layer_data.getLayer(layer_id).polygons:
                     self._max_feedrate = max(float(p.lineFeedrates.max()), self._max_feedrate)
                     self._min_feedrate = min(float(p.lineFeedrates.min()), self._min_feedrate)
                     self._max_thickness = max(float(p.lineThicknesses.max()), self._max_thickness)
@@ -367,21 +399,18 @@ class SimulationView(View):
 
     def calculateMaxPathsOnLayer(self, layer_num):
         # Update the currentPath
-        scene = self.getController().getScene()
-        for node in DepthFirstIterator(scene.getRoot()):
-            layer_data = node.callDecoration("getLayerData")
-            if not layer_data:
-                continue
+        if self._layer_data is None:
+            return
 
-            layer = layer_data.getLayer(layer_num)
-            if layer is None:
-                return
-            new_max_paths = layer.lineMeshElementCount()
-            if new_max_paths >= 0 and new_max_paths != self._max_paths:
-                self._max_paths = new_max_paths
-                self.maxPathsChanged.emit()
+        layer = self._layer_data.getLayer(layer_num)
+        if layer is None:
+            return
+        new_max_paths = layer.lineMeshElementCount()
+        if new_max_paths >= 0 and new_max_paths != self._max_paths:
+            self._max_paths = new_max_paths
+            self.maxPathsChanged.emit()
 
-            self.setPath(int(new_max_paths))
+        self.setPath(int(new_max_paths))
 
     maxLayersChanged = Signal()
     maxPathsChanged = Signal()

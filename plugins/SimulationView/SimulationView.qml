@@ -523,14 +523,29 @@ Item
         }
     }
 
-    Item {
+    Label
+    {
+        id: positionInfo
+        width: parent.width
+        anchors
+        {
+            top: parent.bottom
+            topMargin: UM.Theme.getSize("slider_layerview_margin").height / 2
+            bottomMargin: UM.Theme.getSize("slider_layerview_margin").height / 2
+        }
+
+        text: UM.SimulationView.positionInfo
+    }
+
+    Item
+    {
         id: slidersBox
 
         width: parent.width
         visible: UM.SimulationView.layerActivity && CuraApplication.platformActivity
 
         anchors {
-            top: parent.bottom
+            top: positionInfo.bottom
             topMargin: UM.Theme.getSize("slider_layerview_margin").height
             left: parent.left
         }

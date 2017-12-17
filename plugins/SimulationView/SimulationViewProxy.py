@@ -89,6 +89,13 @@ class SimulationViewProxy(QObject):
             return active_view.getCompatibilityMode()
         return False
 
+    @pyqtProperty(str, notify=currentPathChanged)
+    def positionInfo(self):
+        active_view = self._controller.getActiveView()
+        if isinstance(active_view, SimulationView.SimulationView.SimulationView):
+            return active_view.getPositionInfo()
+        return False
+
     @pyqtSlot(int)
     def setCurrentLayer(self, layer_num):
         active_view = self._controller.getActiveView()
