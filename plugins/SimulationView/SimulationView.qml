@@ -324,6 +324,13 @@ Item
             }
 
             CheckBox {
+                id: positionCheckbox
+                checked: false
+                text: catalog.i18nc("@label", "Show Position")
+                style: UM.Theme.styles.checkbox
+            }
+
+            CheckBox {
                 checked: viewSettings.only_show_top_layers
                 onClicked: {
                     UM.Preferences.setValue("view/only_show_top_layers", checked ? 1.0 : 0.0);
@@ -385,7 +392,7 @@ Item
                 id: gradientLegend
                 visible: viewSettings.show_gradient
                 width: parent.width
-                height: UM.Theme.getSize("layerview_row").height
+                height: UM.Theme.getSize("layerview_row").height - UM.Theme.getSize("slider_layerview_margin").height / 2
                 anchors {
                     topMargin: UM.Theme.getSize("slider_layerview_margin").height
                     horizontalCenter: parent.horizontalCenter
@@ -527,6 +534,8 @@ Item
     {
         id: positionInfo
         width: parent.width
+        visible: positionCheckbox.checked
+
         anchors
         {
             top: parent.bottom
@@ -534,7 +543,13 @@ Item
             bottomMargin: UM.Theme.getSize("slider_layerview_margin").height / 2
         }
 
-        text: UM.SimulationView.positionInfo
+        text:
+        {
+            if (UM.SimulationView.positionInfo)
+            {
+                return UM.SimulationView.positionInfo["x"]
+            }
+        }
     }
 
     Item
@@ -545,7 +560,7 @@ Item
         visible: UM.SimulationView.layerActivity && CuraApplication.platformActivity
 
         anchors {
-            top: positionInfo.bottom
+            top: positionInfo.visible ? positionInfo.bottom : parent.bottom
             topMargin: UM.Theme.getSize("slider_layerview_margin").height
             left: parent.left
         }

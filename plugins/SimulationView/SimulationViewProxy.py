@@ -1,6 +1,8 @@
 # Copyright (c) 2017 Ultimaker B.V.
 # Cura is released under the terms of the LGPLv3 or higher.
 
+from typing import Dict
+
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtProperty
 from UM.FlameProfiler import pyqtSlot
 from UM.Application import Application
@@ -89,8 +91,8 @@ class SimulationViewProxy(QObject):
             return active_view.getCompatibilityMode()
         return False
 
-    @pyqtProperty(str, notify=currentPathChanged)
-    def positionInfo(self):
+    @pyqtProperty("QVariantMap", notify=currentPathChanged)
+    def positionInfo(self) -> Dict[str, float]:
         active_view = self._controller.getActiveView()
         if isinstance(active_view, SimulationView.SimulationView.SimulationView):
             return active_view.getPositionInfo()

@@ -173,7 +173,7 @@ class SimulationView(View):
 
     def getPositionInfo(self):
         if self._layer_data is None:
-            return ""
+            return None
 
         layer = self._layer_data.getLayer(self._current_layer_num)
         index = self._current_path_num
@@ -194,10 +194,8 @@ class SimulationView(View):
                              "type" : polygon.types[index + offset - 1][0] if index != 0 else 0}
             break
 
-        if position_info is None:
-            return ""
-
-        return "X{0:.2f} Y{1:.2f} Z{2:.2f} F{3:.2f} T{4}".format(position_info["x"], position_info["y"], position_info["z"], position_info["feedrate"], position_info["type"])
+        return position_info
+        # return "X{0:.2f} Y{1:.2f} Z{2:.2f} F{3:.2f} T{4}".format(position_info["x"], position_info["y"], position_info["z"], position_info["feedrate"], position_info["type"])
 
     def resetLayerData(self):
         self._layer_data = None

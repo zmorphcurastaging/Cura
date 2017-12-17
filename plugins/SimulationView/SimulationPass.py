@@ -118,19 +118,6 @@ class SimulationPass(RenderPass):
                     for layer in sorted(element_counts.keys()):
                         # In the current layer, we show just the indicated paths
                         if layer == self._layer_view._current_layer_num:
-                            # We look for the position of the head, searching the point of the current path
-                            index = self._layer_view._current_path_num
-                            offset = 0
-                            for polygon in layer_data.getLayer(layer).polygons:
-                                # The size indicates all values in the two-dimension array, and the second dimension is
-                                # always size 3 because we have 3D points.
-                                if index >= polygon.data.size // 3 - offset:
-                                    index -= polygon.data.size // 3 - offset
-                                    offset = 1  # This is to avoid the first point when there is more than one polygon, since has the same value as the last point in the previous polygon
-                                    continue
-                                # The head position is calculated and translated
-                                head_position = Vector(polygon.data[index+offset][0], polygon.data[index+offset][1], polygon.data[index+offset][2]) + node.getWorldPosition()
-                                break
                             break
                         if self._layer_view._minimum_layer_num > layer:
                             start += element_counts[layer]
@@ -139,6 +126,11 @@ class SimulationPass(RenderPass):
                     # Calculate the range of paths in the last layer
                     current_layer_start = end
                     current_layer_end = end + self._layer_view._current_path_num * 2 # Because each point is used twice
+
+                    # The head position is calculated and translated
+                    position = self._layer_view.getPositionInfo()
+                    if position is not None:
+                        head_position = Vector(position["x"], position["z"], position["y"]) + node.getWorldPosition()
 
                     # This uses glDrawRangeElements internally to only draw a certain range of lines.
                     # All the layers but the current selected layer are rendered first
