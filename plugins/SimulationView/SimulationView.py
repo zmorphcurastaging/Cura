@@ -1,7 +1,8 @@
-# Copyright (c) 2017 Ultimaker B.V.
+# Copyright (c) 2018 Ultimaker B.V.
 # Cura is released under the terms of the LGPLv3 or higher.
 
 import sys
+import copy
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QOpenGLContext
@@ -189,16 +190,15 @@ class SimulationView(View):
                 index -= polygon.data.size // 3 - offset
                 offset = 1  # This is to avoid the first point when there is more than one polygon, since has the same value as the last point in the previous polygon
                 continue
-            # The head position is calculated and translated
-            position_info = {"x" : polygon.data[index + offset][0],
-                             "y" : polygon.data[index + offset][2],
-                             "z" : polygon.data[index + offset][1],
-                             "feedrate" : polygon.lineFeedrates[index + offset - 1][0] if index != 0 else 0,
-                             "type" : polygon.types[index + offset - 1][0] if index != 0 else 0}
+            # The head position is calculated and translated. Use the function item() to convert to float
+            position_info = {"x" : polygon.data[index + offset][0].item(),
+                             "y" : polygon.data[index + offset][2].item(),
+                             "z" : polygon.data[index + offset][1].item(),
+                             "feedrate" : polygon.lineFeedrates[index + offset - 1][0].item() if index != 0 else 0,
+                             "type" : polygon.types[index + offset - 1][0].item() if index != 0 else 0}
             break
 
         return position_info
-        # return "X{0:.2f} Y{1:.2f} Z{2:.2f} F{3:.2f} T{4}".format(position_info["x"], position_info["y"], position_info["z"], position_info["feedrate"], position_info["type"])
 
     def resetLayerData(self):
         self._layer_data = None
