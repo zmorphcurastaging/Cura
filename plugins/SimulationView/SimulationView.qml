@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Ultimaker B.V.
+// Copyright (c) 2018 Ultimaker B.V.
 // Cura is released under the terms of the LGPLv3 or higher.
 
 import QtQuick 2.4
@@ -529,24 +529,41 @@ Item
         }
     }
 
-    Label
+    Item
     {
-        id: positionInfo
+        id: positionInfoBox
         width: parent.width
+        height: childrenRect.height
+        anchors.top: parent.bottom
         visible: positionCheckbox.checked
 
-        anchors
+        Rectangle
         {
-            top: parent.bottom
-            topMargin: UM.Theme.getSize("slider_layerview_margin").height / 2
-            bottomMargin: UM.Theme.getSize("slider_layerview_margin").height / 2
+            color: "red"
+            anchors.fill: parent
         }
 
-        text:
+        Label
         {
-            if (UM.SimulationView.positionInfo)
+            id: positionInfo
+            width: parent.width
+            anchors.top: parent.top
+
+            anchors
             {
-                return UM.SimulationView.positionInfo["x"]
+                top: parent.bottom
+                topMargin: UM.Theme.getSize("slider_layerview_margin").height / 2
+                bottomMargin: UM.Theme.getSize("slider_layerview_margin").height / 2
+            }
+
+            text:
+            {
+                if (UM.SimulationView.positionInfo.x)
+                {
+                    return "<b>X: </b>%1\n".arg(UM.SimulationView.positionInfo.x.toFixed(2)) +
+                            "<b>Y: </b>%1\n".arg(UM.SimulationView.positionInfo.y.toFixed(2)) +
+                            "<b>Z: </b>%1".arg(UM.SimulationView.positionInfo.z.toFixed(2))
+                }
             }
         }
     }
@@ -559,7 +576,7 @@ Item
         visible: UM.SimulationView.layerActivity && CuraApplication.platformActivity
 
         anchors {
-            top: positionInfo.visible ? positionInfo.bottom : parent.bottom
+            top: positionInfoBox.visible ? positionInfoBox.bottom : parent.bottom
             topMargin: UM.Theme.getSize("slider_layerview_margin").height
             left: parent.left
         }
