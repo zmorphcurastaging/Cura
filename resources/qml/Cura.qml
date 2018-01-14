@@ -375,12 +375,47 @@ UM.MainWindow
                 }
             }
 
+            ObjectsList
+            {
+                id: objectsList;
+                visible: UM.Preferences.getValue("cura/use_multi_build_plate");
+                anchors
+                {
+                    bottom: parent.bottom;
+                    left: parent.left;
+                }
+
+            }
+
             Topbar
             {
                 id: topbar
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.top: parent.top
+            }
+
+            Loader
+            {
+                id: main
+
+                anchors
+                {
+                    top: topbar.bottom
+                    bottom: parent.bottom
+                    left: parent.left
+                    right: sidebar.left
+                }
+
+                MouseArea
+                {
+                    visible: UM.Controller.activeStage.mainComponent != ""
+                    anchors.fill: parent
+                    acceptedButtons: Qt.AllButtons
+                    onWheel: wheel.accepted = true
+                }
+
+                source: UM.Controller.activeStage.mainComponent
             }
 
             Loader
@@ -401,7 +436,7 @@ UM.MainWindow
                         collapseSidebarAnimation.start();
                     }
                     collapsed = !collapsed;
-                    UM.Preferences.setValue("cura/sidebar_collapse", collapsed);
+                    UM.Preferences.setValue("cura/sidebar_collapsed", collapsed);
                 }
 
                 anchors
@@ -432,37 +467,15 @@ UM.MainWindow
 
                 Component.onCompleted:
                 {
-                    var sidebarCollapsed = UM.Preferences.getValue("cura/sidebar_collapse");
+                    var sidebar_collapsed = UM.Preferences.getValue("cura/sidebar_collapsed");
 
-                    if (sidebarCollapsed) {
+                    if (sidebar_collapsed)
+                    {
                         sidebar.collapsed = true;
                         viewportRect = Qt.rect(0, 0, 1, 1.0)
                         collapseSidebarAnimation.start();
                     }
                 }
-            }
-
-            Loader
-            {
-                id: main
-
-                anchors
-                {
-                    top: topbar.bottom
-                    bottom: parent.bottom
-                    left: parent.left
-                    right: sidebar.left
-                }
-
-                MouseArea
-                {
-                    visible: UM.Controller.activeStage.mainComponent != ""
-                    anchors.fill: parent
-                    acceptedButtons: Qt.AllButtons
-                    onWheel: wheel.accepted = true
-                }
-
-                source: UM.Controller.activeStage.mainComponent
             }
 
             UM.MessageStack
@@ -526,6 +539,12 @@ UM.MainWindow
     {
         target: Cura.Actions.preferences
         onTriggered: preferences.visible = true
+    }
+
+    Connections
+    {
+        target: CuraApplication
+        onShowPreferencesWindow: preferences.visible = true
     }
 
     MessageDialog

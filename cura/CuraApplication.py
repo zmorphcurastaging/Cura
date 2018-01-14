@@ -1,4 +1,5 @@
 # Copyright (c) 2017 Ultimaker B.V.
+# Copyright (c) 2017 Ultimaker B.V.
 # Cura is released under the terms of the LGPLv3 or higher.
 from PyQt5.QtNetwork import QLocalServer
 from PyQt5.QtNetwork import QLocalSocket
@@ -16,7 +17,6 @@ from UM.Scene.Iterator.DepthFirstIterator import DepthFirstIterator
 from UM.Mesh.ReadMeshJob import ReadMeshJob
 from UM.Logger import Logger
 from UM.Preferences import Preferences
-from UM.SaveFile import SaveFile
 from UM.Scene.Selection import Selection
 from UM.Scene.GroupDecorator import GroupDecorator
 from UM.Settings.ContainerStack import ContainerStack
@@ -32,15 +32,19 @@ from UM.Operations.RemoveSceneNodeOperation import RemoveSceneNodeOperation
 from UM.Operations.GroupedOperation import GroupedOperation
 from UM.Operations.SetTransformOperation import SetTransformOperation
 
-from cura.Arrange import Arrange
-from cura.ShapeArray import ShapeArray
-from cura.ConvexHullDecorator import ConvexHullDecorator
-from cura.SetParentOperation import SetParentOperation
-from cura.SliceableObjectDecorator import SliceableObjectDecorator
-from cura.BlockSlicingDecorator import BlockSlicingDecorator
-
-from cura.ArrangeObjectsJob import ArrangeObjectsJob
+from cura.Arranging.Arrange import Arrange
+from cura.Arranging.ArrangeObjectsJob import ArrangeObjectsJob
+from cura.Arranging.ArrangeObjectsAllBuildPlatesJob import ArrangeObjectsAllBuildPlatesJob
+from cura.Arranging.ShapeArray import ShapeArray
 from cura.MultiplyObjectsJob import MultiplyObjectsJob
+from cura.Scene.ConvexHullDecorator import ConvexHullDecorator
+from cura.Operations.SetParentOperation import SetParentOperation
+from cura.Scene.SliceableObjectDecorator import SliceableObjectDecorator
+from cura.Scene.BlockSlicingDecorator import BlockSlicingDecorator
+from cura.Scene.BuildPlateDecorator import BuildPlateDecorator
+from cura.Scene.CuraSceneNode import CuraSceneNode
+
+from cura.Scene.CuraSceneController import CuraSceneController
 
 from UM.Settings.SettingDefinition import SettingDefinition, DefinitionPropertyType
 from UM.Settings.ContainerRegistry import ContainerRegistry
@@ -53,12 +57,13 @@ from cura.Settings.SettingInheritanceManager import SettingInheritanceManager
 from cura.Settings.UserProfilesModel import UserProfilesModel
 from cura.Settings.SimpleModeSettingsManager import SimpleModeSettingsManager
 
+
 from . import PlatformPhysics
 from . import BuildVolume
 from . import CameraAnimation
 from . import PrintInformation
 from . import CuraActions
-from . import ZOffsetDecorator
+from cura.Scene import ZOffsetDecorator
 from . import CuraSplashScreen
 from . import CameraImageProvider
 from . import MachineActionManager
@@ -72,8 +77,9 @@ from cura.Settings.ContainerSettingsModel import ContainerSettingsModel
 from cura.Settings.MaterialSettingsVisibilityHandler import MaterialSettingsVisibilityHandler
 from cura.Settings.QualitySettingsModel import QualitySettingsModel
 from cura.Settings.ContainerManager import ContainerManager
-from cura.Settings.GlobalStack import GlobalStack
-from cura.Settings.ExtruderStack import ExtruderStack
+
+from cura.ObjectsModel import ObjectsModel
+from cura.BuildPlateModel import BuildPlateModel
 
 from PyQt5.QtCore import QUrl, pyqtSignal, pyqtProperty, QEvent, Q_ENUMS
 from UM.FlameProfiler import pyqtSlot
@@ -85,7 +91,6 @@ import sys
 import os.path
 import numpy
 import copy
-import urllib.parse
 import os
 import argparse
 import json
@@ -127,7 +132,7 @@ class CuraApplication(QtApplication):
     #        Cura will always show the Add Machine Dialog upon start.
     stacksValidationFinished = pyqtSignal()  # Emitted whenever a validation is finished
 
-    def __init__(self):
+    def __init__(self, **kwargs):
 
         # this list of dir names will be used by UM to detect an old cura directory
         for dir_name in ["extruders", "machine_instances", "materials", "plugins", "quality", "user", "variants"]:
@@ -203,14 +208,20 @@ class CuraApplication(QtApplication):
         self._machine_manager = None    # This is initialized on demand.
         self._extruder_manager = None
         self._material_manager = None
+        self._object_manager = None
+        self._build_plate_model = None
         self._setting_inheritance_manager = None
         self._simple_mode_settings_manager = None
+        self._cura_scene_controller = None
 
         self._additional_components = {} # Components to add to certain areas in the interface
 
-        super().__init__(name = "cura", version = CuraVersion, buildtype = CuraBuildType,
+        super().__init__(name = "cura",
+                         version = CuraVersion,
+                         buildtype = CuraBuildType,
                          is_debug_mode = CuraDebugMode,
-                         tray_icon_name = "cura-icon-32.png")
+                         tray_icon_name = "cura-icon-32.png",
+                         **kwargs)
 
         self.default_theme = "cura-light"
 
@@ -255,6 +266,7 @@ class CuraApplication(QtApplication):
         self.getController().getScene().sceneChanged.connect(self.updatePlatformActivity)
         self.getController().toolOperationStopped.connect(self._onToolOperationStopped)
         self.getController().contextMenuRequested.connect(self._onContextMenuRequested)
+        self.getCuraSceneController().activeBuildPlateChanged.connect(self.updatePlatformActivity)
 
         Resources.addType(self.ResourceTypes.QmlFiles, "qml")
         Resources.addType(self.ResourceTypes.Firmware, "firmware")
@@ -308,12 +320,15 @@ class CuraApplication(QtApplication):
         preferences.addPreference("cura/asked_dialog_on_project_save", False)
         preferences.addPreference("cura/choice_on_profile_override", "always_ask")
         preferences.addPreference("cura/choice_on_open_project", "always_ask")
+        preferences.addPreference("cura/not_arrange_objects_on_load", False)
+        preferences.addPreference("cura/use_multi_build_plate", False)
 
         preferences.addPreference("cura/currency", "€")
         preferences.addPreference("cura/material_settings", "{}")
 
         preferences.addPreference("view/invert_zoom", False)
-        preferences.addPreference("cura/sidebar_collapse", False)
+        preferences.addPreference("view/filter_current_build_plate", False)
+        preferences.addPreference("cura/sidebar_collapsed", False)
 
         self._need_to_show_user_agreement = not Preferences.getInstance().getValue("general/accepted_user_agreement")
 
@@ -386,6 +401,8 @@ class CuraApplication(QtApplication):
 
         self._plugin_registry.addSupportedPluginExtension("curaplugin", "Cura Plugin")
 
+        self.getCuraSceneController().setActiveBuildPlate(0)  # Initialize
+
     def _onEngineCreated(self):
         self._engine.addImageProvider("camera", CameraImageProvider.CameraImageProvider())
 
@@ -400,7 +417,19 @@ class CuraApplication(QtApplication):
     @pyqtSlot()
     def closeApplication(self):
         Logger.log("i", "Close application")
-        self._main_window.close()
+        main_window = self.getMainWindow()
+        if main_window is not None:
+            main_window.close()
+        else:
+            self.exit(0)
+
+    ##  Signal to connect preferences action in QML
+    showPreferencesWindow = pyqtSignal()
+
+    ##  Show the preferences window
+    @pyqtSlot()
+    def showPreferences(self):
+        self.showPreferencesWindow.emit()
 
     ## A reusable dialogbox
     #
@@ -508,11 +537,10 @@ class CuraApplication(QtApplication):
         self._plugins_loaded = True
 
     @classmethod
-    def addCommandLineOptions(self, parser):
-        super().addCommandLineOptions(parser)
+    def addCommandLineOptions(self, parser, parsed_command_line = {}):
+        super().addCommandLineOptions(parser, parsed_command_line = parsed_command_line)
         parser.add_argument("file", nargs="*", help="Files to load after starting the application.")
         parser.add_argument("--single-instance", action="store_true", default=False)
-        parser.add_argument("--headless", action = "store_true", default=False)
 
     # Set up a local socket server which listener which coordinates single instances Curas and accepts commands.
     def _setUpSingleInstanceServer(self):
@@ -566,13 +594,16 @@ class CuraApplication(QtApplication):
     #   This should be called directly before creating an instance of CuraApplication.
     #   \returns \type{bool} True if the whole Cura app should continue running.
     @classmethod
-    def preStartUp(cls):
+    def preStartUp(cls, parser = None, parsed_command_line = {}):
         # Peek the arguments and look for the 'single-instance' flag.
-        parser = argparse.ArgumentParser(prog="cura")  # pylint: disable=bad-whitespace
-        CuraApplication.addCommandLineOptions(parser)
-        parsed_command_line = vars(parser.parse_args())
+        if not parser:
+            parser = argparse.ArgumentParser(prog = "cura", add_help = False)  # pylint: disable=bad-whitespace
+        CuraApplication.addCommandLineOptions(parser, parsed_command_line = parsed_command_line)
+        # Important: It is important to keep this line here!
+        #            In Uranium we allow to pass unknown arguments to the final executable or script.
+        parsed_command_line.update(vars(parser.parse_known_args()[0]))
 
-        if "single_instance" in parsed_command_line and parsed_command_line["single_instance"]:
+        if parsed_command_line["single_instance"]:
             Logger.log("i", "Checking for the presence of an ready running Cura instance.")
             single_instance_socket = QLocalSocket()
             Logger.log("d", "preStartUp(): full server name: " + single_instance_socket.fullServerName())
@@ -604,7 +635,22 @@ class CuraApplication(QtApplication):
                 return False
         return True
 
+    def preRun(self):
+        # Last check for unknown commandline arguments
+        parser = self.getCommandlineParser()
+        parser.add_argument("--help", "-h",
+                            action='store_true',
+                            default = False,
+                            help = "Show this help message and exit."
+                            )
+        parsed_args = vars(parser.parse_args()) # This won't allow unknown arguments
+        if parsed_args["help"]:
+            parser.print_help()
+            sys.exit(0)
+    
     def run(self):
+        self.preRun()
+        
         self.showSplashMessage(self._i18n_catalog.i18nc("@info:progress", "Setting up scene..."))
 
         self._setUpSingleInstanceServer()
@@ -652,19 +698,27 @@ class CuraApplication(QtApplication):
         qmlRegisterSingletonType(ExtruderManager, "Cura", 1, 0, "ExtruderManager", self.getExtruderManager)
         qmlRegisterSingletonType(MachineManager, "Cura", 1, 0, "MachineManager", self.getMachineManager)
         qmlRegisterSingletonType(MaterialManager, "Cura", 1, 0, "MaterialManager", self.getMaterialManager)
-        qmlRegisterSingletonType(SettingInheritanceManager, "Cura", 1, 0, "SettingInheritanceManager", self.getSettingInheritanceManager)
-        qmlRegisterSingletonType(SimpleModeSettingsManager, "Cura", 1, 2, "SimpleModeSettingsManager", self.getSimpleModeSettingsManager)
+
+        qmlRegisterSingletonType(SettingInheritanceManager, "Cura", 1, 0, "SettingInheritanceManager",
+                                 self.getSettingInheritanceManager)
+        qmlRegisterSingletonType(SimpleModeSettingsManager, "Cura", 1, 2, "SimpleModeSettingsManager",
+                                 self.getSimpleModeSettingsManager)
+
+        qmlRegisterSingletonType(ObjectsModel, "Cura", 1, 2, "ObjectsModel", self.getObjectsModel)
+        qmlRegisterSingletonType(BuildPlateModel, "Cura", 1, 2, "BuildPlateModel", self.getBuildPlateModel)
+        qmlRegisterSingletonType(CuraSceneController, "Cura", 1, 2, "SceneController", self.getCuraSceneController)
+
         qmlRegisterSingletonType(MachineActionManager.MachineActionManager, "Cura", 1, 0, "MachineActionManager", self.getMachineActionManager)
 
         self.setMainQml(Resources.getPath(self.ResourceTypes.QmlFiles, "Cura.qml"))
         self._qml_import_paths.append(Resources.getPath(self.ResourceTypes.QmlFiles))
 
-        run_headless = self.getCommandLineOption("headless", False)
-        if not run_headless:
+        run_without_gui = self.getCommandLineOption("headless", False)
+        if not run_without_gui:
             self.initializeEngine()
             controller.setActiveStage("PrepareStage")
 
-        if run_headless or self._engine.rootObjects:
+        if run_without_gui or self._engine.rootObjects:
             self.closeSplash()
 
             for file_name in self.getCommandLineOption("file", []):
@@ -690,6 +744,22 @@ class CuraApplication(QtApplication):
         if self._material_manager is None:
             self._material_manager = MaterialManager.createMaterialManager()
         return self._material_manager
+
+    def getObjectsModel(self, *args):
+        if self._object_manager is None:
+            self._object_manager = ObjectsModel.createObjectsModel()
+        return self._object_manager
+
+    def getBuildPlateModel(self, *args):
+        if self._build_plate_model is None:
+            self._build_plate_model = BuildPlateModel.createBuildPlateModel()
+
+        return self._build_plate_model
+
+    def getCuraSceneController(self, *args):
+        if self._cura_scene_controller is None:
+            self._cura_scene_controller = CuraSceneController.createCuraSceneController()
+        return self._cura_scene_controller
 
     def getSettingInheritanceManager(self, *args):
         if self._setting_inheritance_manager is None:
@@ -821,12 +891,17 @@ class CuraApplication(QtApplication):
     def getSceneBoundingBoxString(self):
         return self._i18n_catalog.i18nc("@info 'width', 'depth' and 'height' are variable names that must NOT be translated; just translate the format of ##x##x## mm.", "%(width).1f x %(depth).1f x %(height).1f mm") % {'width' : self._scene_bounding_box.width.item(), 'depth': self._scene_bounding_box.depth.item(), 'height' : self._scene_bounding_box.height.item()}
 
+    ##  Update scene bounding box for current build plate
     def updatePlatformActivity(self, node = None):
         count = 0
         scene_bounding_box = None
         is_block_slicing_node = False
+        active_build_plate = self.getBuildPlateModel().activeBuildPlate
         for node in DepthFirstIterator(self.getController().getScene().getRoot()):
-            if type(node) is not SceneNode or (not node.getMeshData() and not node.callDecoration("getLayerData")):
+            if (
+                not issubclass(type(node), CuraSceneNode) or
+                (not node.getMeshData() and not node.callDecoration("getLayerData")) or
+                (node.callDecoration("getBuildPlateNumber") != active_build_plate)):
                 continue
             if node.callDecoration("isBlockSlicing"):
                 is_block_slicing_node = True
@@ -846,7 +921,7 @@ class CuraApplication(QtApplication):
         if not scene_bounding_box:
             scene_bounding_box = AxisAlignedBox.Null
 
-        if repr(self._scene_bounding_box) != repr(scene_bounding_box) and scene_bounding_box.isValid():
+        if repr(self._scene_bounding_box) != repr(scene_bounding_box):
             self._scene_bounding_box = scene_bounding_box
             self.sceneBoundingBoxChanged.emit()
 
@@ -943,7 +1018,7 @@ class CuraApplication(QtApplication):
 
         Selection.clear()
         for node in DepthFirstIterator(self.getController().getScene().getRoot()):
-            if type(node) is not SceneNode:
+            if not issubclass(type(node), SceneNode):
                 continue
             if not node.getMeshData() and not node.callDecoration("isGroup"):
                 continue  # Node that doesnt have a mesh and is not a group.
@@ -951,6 +1026,9 @@ class CuraApplication(QtApplication):
                 continue  # Grouped nodes don't need resetting as their parent (the group) is resetted)
             if not node.isSelectable():
                 continue  # i.e. node with layer data
+            if not node.callDecoration("isSliceable") and not node.callDecoration("isGroup"):
+                continue  # i.e. node with layer data
+
             Selection.add(node)
 
     ##  Delete all nodes containing mesh data in the scene.
@@ -962,7 +1040,7 @@ class CuraApplication(QtApplication):
 
         nodes = []
         for node in DepthFirstIterator(self.getController().getScene().getRoot()):
-            if type(node) is not SceneNode:
+            if type(node) not in {SceneNode, CuraSceneNode}:
                 continue
             if (not node.getMeshData() and not node.callDecoration("getLayerData")) and not node.callDecoration("isGroup"):
                 continue  # Node that doesnt have a mesh and is not a group.
@@ -978,13 +1056,15 @@ class CuraApplication(QtApplication):
             op.push()
             Selection.clear()
 
-    ## Reset all translation on nodes with mesh data. 
+        self.getCuraSceneController().setActiveBuildPlate(0)  # Select first build plate
+
+    ## Reset all translation on nodes with mesh data.
     @pyqtSlot()
     def resetAllTranslation(self):
         Logger.log("i", "Resetting all scene translations")
         nodes = []
         for node in DepthFirstIterator(self.getController().getScene().getRoot()):
-            if type(node) is not SceneNode:
+            if not issubclass(type(node), SceneNode):
                 continue
             if not node.getMeshData() and not node.callDecoration("isGroup"):
                 continue  # Node that doesnt have a mesh and is not a group.
@@ -1012,13 +1092,13 @@ class CuraApplication(QtApplication):
         Logger.log("i", "Resetting all scene transformations")
         nodes = []
         for node in DepthFirstIterator(self.getController().getScene().getRoot()):
-            if type(node) is not SceneNode:
+            if not issubclass(type(node), SceneNode):
                 continue
             if not node.getMeshData() and not node.callDecoration("isGroup"):
                 continue  # Node that doesnt have a mesh and is not a group.
             if node.getParent() and node.getParent().callDecoration("isGroup"):
                 continue  # Grouped nodes don't need resetting as their parent (the group) is resetted)
-            if not node.isSelectable():
+            if not node.callDecoration("isSliceable") and not node.callDecoration("isGroup"):
                 continue  # i.e. node with layer data
             nodes.append(node)
 
@@ -1036,10 +1116,31 @@ class CuraApplication(QtApplication):
 
     ##  Arrange all objects.
     @pyqtSlot()
-    def arrangeAll(self):
+    def arrangeObjectsToAllBuildPlates(self):
         nodes = []
         for node in DepthFirstIterator(self.getController().getScene().getRoot()):
-            if type(node) is not SceneNode:
+            if not issubclass(type(node), SceneNode):
+                continue
+            if not node.getMeshData() and not node.callDecoration("isGroup"):
+                continue  # Node that doesnt have a mesh and is not a group.
+            if node.getParent() and node.getParent().callDecoration("isGroup"):
+                continue  # Grouped nodes don't need resetting as their parent (the group) is resetted)
+            if not node.callDecoration("isSliceable") and not node.callDecoration("isGroup"):
+                continue  # i.e. node with layer data
+            # Skip nodes that are too big
+            if node.getBoundingBox().width < self._volume.getBoundingBox().width or node.getBoundingBox().depth < self._volume.getBoundingBox().depth:
+                nodes.append(node)
+        job = ArrangeObjectsAllBuildPlatesJob(nodes)
+        job.start()
+        self.getCuraSceneController().setActiveBuildPlate(0)  # Select first build plate
+
+    # Single build plate
+    @pyqtSlot()
+    def arrangeAll(self):
+        nodes = []
+        active_build_plate = self.getBuildPlateModel().activeBuildPlate
+        for node in DepthFirstIterator(self.getController().getScene().getRoot()):
+            if not issubclass(type(node), SceneNode):
                 continue
             if not node.getMeshData() and not node.callDecoration("isGroup"):
                 continue  # Node that doesnt have a mesh and is not a group.
@@ -1047,9 +1148,12 @@ class CuraApplication(QtApplication):
                 continue  # Grouped nodes don't need resetting as their parent (the group) is resetted)
             if not node.isSelectable():
                 continue  # i.e. node with layer data
-            # Skip nodes that are too big
-            if node.getBoundingBox().width < self._volume.getBoundingBox().width or node.getBoundingBox().depth < self._volume.getBoundingBox().depth:
-                nodes.append(node)
+            if not node.callDecoration("isSliceable") and not node.callDecoration("isGroup"):
+                continue  # i.e. node with layer data
+            if node.callDecoration("getBuildPlateNumber") == active_build_plate:
+                # Skip nodes that are too big
+                if node.getBoundingBox().width < self._volume.getBoundingBox().width or node.getBoundingBox().depth < self._volume.getBoundingBox().depth:
+                    nodes.append(node)
         self.arrange(nodes, fixed_nodes = [])
 
     ##  Arrange Selection
@@ -1060,13 +1164,15 @@ class CuraApplication(QtApplication):
         # What nodes are on the build plate and are not being moved
         fixed_nodes = []
         for node in DepthFirstIterator(self.getController().getScene().getRoot()):
-            if type(node) is not SceneNode:
+            if not issubclass(type(node), SceneNode):
                 continue
             if not node.getMeshData() and not node.callDecoration("isGroup"):
                 continue  # Node that doesnt have a mesh and is not a group.
             if node.getParent() and node.getParent().callDecoration("isGroup"):
                 continue  # Grouped nodes don't need resetting as their parent (the group) is resetted)
             if not node.isSelectable():
+                continue  # i.e. node with layer data
+            if not node.callDecoration("isSliceable") and not node.callDecoration("isGroup"):
                 continue  # i.e. node with layer data
             if node in nodes:  # exclude selected node from fixed_nodes
                 continue
@@ -1086,7 +1192,7 @@ class CuraApplication(QtApplication):
         Logger.log("i", "Reloading all loaded mesh data.")
         nodes = []
         for node in DepthFirstIterator(self.getController().getScene().getRoot()):
-            if type(node) is not SceneNode or not node.getMeshData():
+            if not issubclass(type(node), SceneNode) or not node.getMeshData():
                 continue
 
             nodes.append(node)
@@ -1103,7 +1209,7 @@ class CuraApplication(QtApplication):
                 job.start()
             else:
                 Logger.log("w", "Unable to reload data because we don't have a filename.")
-    
+
     ##  Get logging data of the backend engine
     #   \returns \type{string} Logging data
     @pyqtSlot(result = str)
@@ -1177,10 +1283,11 @@ class CuraApplication(QtApplication):
     @pyqtSlot()
     def groupSelected(self):
         # Create a group-node
-        group_node = SceneNode()
+        group_node = CuraSceneNode()
         group_decorator = GroupDecorator()
         group_node.addDecorator(group_decorator)
         group_node.addDecorator(ConvexHullDecorator())
+        group_node.addDecorator(BuildPlateDecorator(self.getBuildPlateModel().activeBuildPlate))
         group_node.setParent(self.getController().getScene().getRoot())
         group_node.setSelectable(True)
         center = Selection.getSelectionCenter()
@@ -1320,13 +1427,26 @@ class CuraApplication(QtApplication):
         filename = job.getFileName()
         self._currently_loading_files.remove(filename)
 
+        self.fileLoaded.emit(filename)
+        arrange_objects_on_load = (
+            not Preferences.getInstance().getValue("cura/use_multi_build_plate") or
+            not Preferences.getInstance().getValue("cura/not_arrange_objects_on_load"))
+        target_build_plate = self.getBuildPlateModel().activeBuildPlate if arrange_objects_on_load else -1
+
         root = self.getController().getScene().getRoot()
-        arranger = Arrange.create(scene_root = root)
+        fixed_nodes = []
+        for node_ in DepthFirstIterator(root):
+            if node_.callDecoration("isSliceable") and node_.callDecoration("getBuildPlateNumber") == target_build_plate:
+                fixed_nodes.append(node_)
+        arranger = Arrange.create(fixed_nodes = fixed_nodes)
         min_offset = 8
 
-        self.fileLoaded.emit(filename)
+        for original_node in nodes:
 
-        for node in nodes:
+            # Create a CuraSceneNode just if the original node is not that type
+            node = original_node if isinstance(original_node, CuraSceneNode) else CuraSceneNode()
+            node.setMeshData(original_node.getMeshData())
+
             node.setSelectable(True)
             node.setName(os.path.basename(filename))
 
@@ -1353,20 +1473,30 @@ class CuraApplication(QtApplication):
                 if not child.getDecorator(ConvexHullDecorator):
                     child.addDecorator(ConvexHullDecorator())
 
-            if node.callDecoration("isSliceable"):
-                # Only check position if it's not already blatantly obvious that it won't fit.
-                if node.getBoundingBox().width < self._volume.getBoundingBox().width or node.getBoundingBox().depth < self._volume.getBoundingBox().depth:
-                    # Find node location
-                    offset_shape_arr, hull_shape_arr = ShapeArray.fromNode(node, min_offset = min_offset)
+            if arrange_objects_on_load:
+                if node.callDecoration("isSliceable"):
+                    # Only check position if it's not already blatantly obvious that it won't fit.
+                    if node.getBoundingBox() is None or self._volume.getBoundingBox() is None or node.getBoundingBox().width < self._volume.getBoundingBox().width or node.getBoundingBox().depth < self._volume.getBoundingBox().depth:
+                        # Find node location
+                        offset_shape_arr, hull_shape_arr = ShapeArray.fromNode(node, min_offset = min_offset)
 
-                    # If a model is to small then it will not contain any points
-                    if offset_shape_arr is None and hull_shape_arr is None:
-                        Message(self._i18n_catalog.i18nc("@info:status", "The selected model was too small to load."),
-                                title=self._i18n_catalog.i18nc("@info:title", "Warning")).show()
-                        return
+                        # If a model is to small then it will not contain any points
+                        if offset_shape_arr is None and hull_shape_arr is None:
+                            Message(self._i18n_catalog.i18nc("@info:status", "The selected model was too small to load."),
+                                    title=self._i18n_catalog.i18nc("@info:title", "Warning")).show()
+                            return
 
-                    # Step is for skipping tests to make it a lot faster. it also makes the outcome somewhat rougher
-                    node, _ = arranger.findNodePlacement(node, offset_shape_arr, hull_shape_arr, step = 10)
+                        # Step is for skipping tests to make it a lot faster. it also makes the outcome somewhat rougher
+                        node, _ = arranger.findNodePlacement(node, offset_shape_arr, hull_shape_arr, step = 10)
+
+            # This node is deepcopied from some other node which already has a BuildPlateDecorator, but the deepcopy
+            # of BuildPlateDecorator produces one that's assoicated with build plate -1. So, here we need to check if
+            # the BuildPlateDecorator exists or not and always set the correct build plate number.
+            build_plate_decorator = node.getDecorator(BuildPlateDecorator)
+            if build_plate_decorator is None:
+                build_plate_decorator = BuildPlateDecorator(target_build_plate)
+                node.addDecorator(build_plate_decorator)
+            build_plate_decorator.setBuildPlateNumber(target_build_plate)
 
             op = AddSceneNodeOperation(node, scene.getRoot())
             op.push()

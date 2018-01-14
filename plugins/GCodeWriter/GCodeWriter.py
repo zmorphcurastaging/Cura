@@ -59,9 +59,13 @@ class GCodeWriter(MeshWriter):
             Logger.log("e", "GCode Writer does not support non-text mode.")
             return False
 
+        active_build_plate = Application.getInstance().getBuildPlateModel().activeBuildPlate
         scene = Application.getInstance().getController().getScene()
-        gcode_list = getattr(scene, "gcode_list")
-        if gcode_list:
+        gcode_dict = getattr(scene, "gcode_dict")
+        if not gcode_dict:
+            return False
+        gcode_list = gcode_dict.get(active_build_plate, None)
+        if gcode_list is not None:
             for gcode in gcode_list:
                 stream.write(gcode)
             # Serialise the current container stack and put it at the end of the file.

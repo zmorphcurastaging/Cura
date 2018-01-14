@@ -514,7 +514,7 @@ class ContainerManager(QObject):
         for stack in ExtruderManager.getInstance().getActiveGlobalAndExtruderStacks():
             # Find the quality_changes container for this stack and merge the contents of the top container into it.
             quality_changes = stack.qualityChanges
-            if not quality_changes or quality_changes.isReadOnly():
+            if not quality_changes or self._container_registry.isReadOnly(quality_changes.getId()):
                 Logger.log("e", "Could not update quality of a nonexistant or read only quality profile in stack %s", stack.getId())
                 continue
 
@@ -687,7 +687,7 @@ class ContainerManager(QObject):
         global_stack = Application.getInstance().getGlobalContainerStack()
         if not global_stack or not quality_name:
             return ""
-        machine_definition = global_stack.getBottom()
+        machine_definition = global_stack.definition
 
         active_stacks = ExtruderManager.getInstance().getActiveGlobalAndExtruderStacks()
         if active_stacks is None:
@@ -815,6 +815,22 @@ class ContainerManager(QObject):
             container_to_add.setDirty(True)
             ContainerRegistry.getInstance().addContainer(container_to_add)
         return self._getMaterialContainerIdForActiveMachine(clone_of_original)
+
+    ##  Create a duplicate of a material or it's original entry
+    #
+    #   \return \type{str} the id of the newly created container.
+    @pyqtSlot(str, result = str)
+    def duplicateOriginalMaterial(self, material_id):
+
+        # check if the given material has a base file (i.e. was shipped by default)
+        base_file = self.getContainerMetaDataEntry(material_id, "base_file")
+
+        if base_file == "":
+            # there is no base file, so duplicate by ID
+            return self.duplicateMaterial(material_id)
+        else:
+            # there is a base file, so duplicate the original material
+            return self.duplicateMaterial(base_file)
 
     ##  Create a new material by cloning Generic PLA for the current material diameter and setting the GUID to something unqiue
     #
