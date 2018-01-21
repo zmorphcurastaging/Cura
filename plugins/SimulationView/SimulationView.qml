@@ -535,35 +535,77 @@ Item
         width: parent.width
         height: childrenRect.height
         anchors.top: parent.bottom
-        visible: positionCheckbox.checked
+        visible: positionCheckbox.checked && UM.SimulationView.layerActivity
 
         Rectangle
         {
-            color: "red"
+            color: Qt.rgba(0.5, 0.5, 0.5, 0.3)
             anchors.fill: parent
         }
 
         Label
         {
-            id: positionInfo
-            width: parent.width
+            id: positionInfoX
+            width: 120
             anchors.top: parent.top
 
-            anchors
-            {
-                top: parent.bottom
-                topMargin: UM.Theme.getSize("slider_layerview_margin").height / 2
-                bottomMargin: UM.Theme.getSize("slider_layerview_margin").height / 2
+            text: labelText("X", UM.SimulationView.positionInfo.x)
+
+            function labelText(header, value) {
+                if (value === undefined)
+                    return ""
+                return "<b>%1: </b>%2".arg(header).arg(value.toFixed(2))
             }
+        }
+
+        Label
+        {
+            id: positionInfoY
+            width: 120
+            anchors.top: parent.top
+            anchors.left: positionInfoX.right
 
             text:
             {
-                if (UM.SimulationView.positionInfo.x)
+                if (UM.SimulationView.positionInfo.y)
                 {
-                    return "<b>X: </b>%1\n".arg(UM.SimulationView.positionInfo.x.toFixed(2)) +
-                            "<b>Y: </b>%1\n".arg(UM.SimulationView.positionInfo.y.toFixed(2)) +
-                            "<b>Z: </b>%1".arg(UM.SimulationView.positionInfo.z.toFixed(2))
+                    return "<b>Y: </b>%1\n".arg(UM.SimulationView.positionInfo.y.toFixed(2))
                 }
+                return ""
+            }
+        }
+
+        Label
+        {
+            id: positionInfoZ
+            width: 120
+            anchors.top: parent.top
+            anchors.left: positionInfoY.right
+
+            text:
+            {
+                if (UM.SimulationView.positionInfo.z)
+                {
+                    return "<b>Z: </b>%1\n".arg(UM.SimulationView.positionInfo.z.toFixed(2))
+                }
+                return ""
+            }
+        }
+
+        Label
+        {
+            id: positionInfoFeedrate
+            width: 120
+            anchors.top: positionInfoX.bottom
+            anchors.left: positionInfoX.left
+
+            text:
+            {
+                if (UM.SimulationView.positionInfo.feedrate)
+                {
+                    return "<b>Feedrate: </b>%1\n".arg(UM.SimulationView.positionInfo.feedrate.toFixed(2))
+                }
+                return ""
             }
         }
     }
