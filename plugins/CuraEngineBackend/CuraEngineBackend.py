@@ -88,6 +88,7 @@ class CuraEngineBackend(QObject, Backend):
         #
         self._global_container_stack = None
         Application.getInstance().globalContainerStackChanged.connect(self._onGlobalStackChanged)
+        Application.getInstance().getExtruderManager().extrudersAdded.connect(self._onGlobalStackChanged)
         self._onGlobalStackChanged()
 
         Application.getInstance().stacksValidationFinished.connect(self._onStackErrorCheckFinished)
@@ -290,6 +291,7 @@ class CuraEngineBackend(QObject, Backend):
             self._start_slice_job = None
 
         if job.isCancelled() or job.getError() or job.getResult() == StartSliceJob.StartJobResult.Error:
+            self.backendStateChange.emit(BackendState.Error)
             return
 
         if job.getResult() == StartSliceJob.StartJobResult.MaterialIncompatible:
@@ -422,8 +424,14 @@ class CuraEngineBackend(QObject, Backend):
     #
     #   \param source The scene node that was changed.
     def _onSceneChanged(self, source):
-        if not issubclass(type(source), SceneNode):
+        if not isinstance(source, SceneNode):
             return
+
+        # This case checks if the source node is a node that contains a GCode. In this case the
+        # cached layer data is removed so the previous data is not rendered - CURA-4821
+        if source.callDecoration("isBlockSlicing") and source.callDecoration("getLayerData"):
+            if self._stored_optimized_layer_data:
+                del self._stored_optimized_layer_data[source.callDecoration("getBuildPlateNumber")]
 
         build_plate_changed = set()
         source_build_plate_number = source.callDecoration("getBuildPlateNumber")

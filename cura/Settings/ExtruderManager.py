@@ -49,6 +49,9 @@ class ExtruderManager(QObject):
     ##  Notify when the user switches the currently active extruder.
     activeExtruderChanged = pyqtSignal()
 
+    ## The signal notifies subscribers if extruders are added
+    extrudersAdded = pyqtSignal()
+
     ##  Gets the unique identifier of the currently active extruder stack.
     #
     #   The currently active extruder stack is the stack that is currently being
@@ -404,8 +407,15 @@ class ExtruderManager(QObject):
                 extruder_train.setNextStack(global_stack)
                 extruders_changed = True
 
+            # FIX: We have to remove those settings here because we know that those values have been copied to all
+            # the extruders at this point.
+            for key in ("material_diameter", "machine_nozzle_size"):
+                if global_stack.definitionChanges.hasProperty(key, "value"):
+                    global_stack.definitionChanges.removeInstance(key, postpone_emit = True)
+
             if extruders_changed:
                 self.extrudersChanged.emit(global_stack_id)
+                self.extrudersAdded.emit()
                 self.setActiveExtruderIndex(0)
 
     ##  Get all extruder values for a certain setting.

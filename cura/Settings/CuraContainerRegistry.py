@@ -94,7 +94,7 @@ class CuraContainerRegistry(ContainerRegistry):
     def _containerExists(self, container_type, container_name):
         container_class = ContainerStack if container_type == "machine" else InstanceContainer
 
-        return self.findContainersMetadata(id = container_name, type = container_type, ignore_case = True) or \
+        return self.findContainersMetadata(container_type = container_class, id = container_name, type = container_type, ignore_case = True) or \
                 self.findContainersMetadata(container_type = container_class, name = container_name, type = container_type)
 
     ##  Exports an profile to a file
@@ -244,6 +244,9 @@ class CuraContainerRegistry(ContainerRegistry):
                             file_name, result)}
 
                 return {"status": "ok", "message": catalog.i18nc("@info:status", "Successfully imported profile {0}", profile_or_list[0].getName())}
+
+            # This message is throw when the profile reader doesn't find any profile in the file
+            return {"status": "error", "message": catalog.i18nc("@info:status", "File {0} does not contain any valid profile.", file_name)}
 
         # If it hasn't returned by now, none of the plugins loaded the profile successfully.
         return {"status": "error", "message": catalog.i18nc("@info:status", "Profile {0} has an unknown file type or is corrupted.", file_name)}
