@@ -10,7 +10,7 @@ import Cura 1.0 as Cura
 
 Item
 {
-    property variant printEstimation: PrintEstimation.estimatedPrintTime
+    property variant printEstimation: PrintInformation.estimatedPrintTime
     property variant printDuration: PrintInformation.currentPrintTime
     property variant printMaterialLengths: PrintInformation.materialLengths
     property variant printMaterialWeights: PrintInformation.materialWeights
@@ -33,7 +33,6 @@ Item
         color: UM.Theme.getColor("text_subtext")
         text:
         {
-            print("###########", printDuration, printDuration.valid, printEstimation)
             if (printDuration && printDuration.valid)
                 return printDuration.getDisplayString(UM.DurationFormat.Short)
             else

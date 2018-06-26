@@ -6,6 +6,8 @@ import json
 import os
 import sys
 import time
+from typing import Dict
+from typing import Union
 
 import numpy
 
@@ -196,9 +198,13 @@ class CuraApplication(QtApplication):
         self._volume = None
         self._output_devices = {}
         self._print_information = None
-        self._print_estimation = None
         self._previous_active_tool = None
         self._platform_activity = False
+        self._scene_statistics = {
+            "bounding_box": AxisAlignedBox.Null,
+            "volume": 0,
+            "surface_area": 0
+        }   # type: Dict[str, Union[AxisAlignedBox, float]]
         self._scene_bounding_box = AxisAlignedBox.Null
 
         self._center_after_select = False
@@ -464,7 +470,6 @@ class CuraApplication(QtApplication):
             "MonitorStage",
             "LocalFileOutputDevice",
             "LocalContainerProvider",
-            "PrintTimeEstimator",
 
             # Views:
             "SimpleView",
@@ -711,7 +716,6 @@ class CuraApplication(QtApplication):
 
         # initialize info objects
         self._print_information = PrintInformation.PrintInformation(self)
-        self._print_estimation = PrintEstimation.PrintEstimation(self)
         self._cura_actions = CuraActions.CuraActions(self)
 
         # Initialize setting visibility presets model
@@ -893,10 +897,6 @@ class CuraApplication(QtApplication):
     def getPrintInformation(self):
         return self._print_information
 
-    ##  Get print estimation
-    def getPrintEstimation(self):
-        return self._print_estimation
-
     def getQualityProfilesDropDownMenuModel(self, *args, **kwargs):
         if self._quality_profile_drop_down_menu_model is None:
             self._quality_profile_drop_down_menu_model = QualityProfilesDropDownMenuModel(self)
@@ -917,7 +917,6 @@ class CuraApplication(QtApplication):
         engine.rootContext().setContextProperty("Printer", self)
         engine.rootContext().setContextProperty("CuraApplication", self)
         engine.rootContext().setContextProperty("PrintInformation", self._print_information)
-        engine.rootContext().setContextProperty("PrintEstimation", self._print_estimation)
         engine.rootContext().setContextProperty("CuraActions", self._cura_actions)
 
         qmlRegisterUncreatableType(CuraApplication, "Cura", 1, 0, "ResourceTypes", "Just an Enum type")
@@ -1028,6 +1027,9 @@ class CuraApplication(QtApplication):
     def getSceneBoundingBoxString(self):
         return self._i18n_catalog.i18nc("@info 'width', 'depth' and 'height' are variable names that must NOT be translated; just translate the format of ##x##x## mm.", "%(width).1f x %(depth).1f x %(height).1f mm") % {'width' : self._scene_bounding_box.width.item(), 'depth': self._scene_bounding_box.depth.item(), 'height' : self._scene_bounding_box.height.item()}
 
+    def getSceneStatistics(self) -> Dict[str, Union[AxisAlignedBox, float]]:
+        return self._scene_statistics
+
     def updatePlatformActivityDelayed(self, node = None):
         if node is not None and (node.getMeshData() is not None or node.callDecoration("getLayerData")):
             self._update_platform_activity_timer.start()
@@ -1036,6 +1038,8 @@ class CuraApplication(QtApplication):
     def updatePlatformActivity(self, node = None):
         count = 0
         scene_bounding_box = None
+        scene_volume = 0
+        scene_surface_area = 0
         is_block_slicing_node = False
         active_build_plate = self.getMultiBuildPlateModel().activeBuildPlate
 
@@ -1063,6 +1067,9 @@ class CuraApplication(QtApplication):
                 if other_bb is not None:
                     scene_bounding_box = scene_bounding_box + node.getBoundingBox()
 
+            # Calculate the total volume and surface area
+            scene_volume += node.getVolume()
+            scene_surface_area += node.getSurfaceArea()
 
         if print_information:
             print_information.setPreSliced(is_block_slicing_node)
@@ -1072,6 +1079,9 @@ class CuraApplication(QtApplication):
 
         if repr(self._scene_bounding_box) != repr(scene_bounding_box):
             self._scene_bounding_box = scene_bounding_box
+            self._scene_statistics["bounding_box"] = scene_bounding_box
+            self._scene_statistics["volume"] = scene_volume
+            self._scene_statistics["surface_area"] = scene_surface_area
             self.sceneBoundingBoxChanged.emit()
 
         self._platform_activity = True if count > 0 else False

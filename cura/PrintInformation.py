@@ -6,7 +6,7 @@ import math
 import os
 import unicodedata
 import re  # To create abbreviations for printer names.
-from typing import Dict
+from typing import Dict, List
 
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtProperty, pyqtSlot
 
@@ -92,7 +92,9 @@ class PrintInformation(QObject):
     # Crate cura message translations and using translation keys initialize empty time Duration object for total time
     # and time for each feature
     def initializeCuraMessagePrintTimeProperties(self):
-        self._current_print_time = {}  # Duration(None, self)
+        self._current_print_time = {}    # type: Dict[int, Duration]
+        self._estimated_print_time = {}  # type: Dict[int, Duration]
+        self._print_time_estimator = PrintTimeEstimator()
 
         self._print_time_message_translations = {
             "inset_0": catalog.i18nc("@tooltip", "Outer Wall"),
@@ -129,6 +131,8 @@ class PrintInformation(QObject):
             self._material_names[self._active_build_plate] = []
         if self._active_build_plate not in self._current_print_time:
             self._current_print_time[self._active_build_plate] = Duration(None, self)
+        if self._active_build_plate not in self._estimated_print_time:
+            self._estimated_print_time[self._active_build_plate] = Duration(None, self)
 
     currentPrintTimeChanged = pyqtSignal()
 
@@ -146,6 +150,12 @@ class PrintInformation(QObject):
     @pyqtProperty(Duration, notify = currentPrintTimeChanged)
     def currentPrintTime(self):
         return self._current_print_time[self._active_build_plate]
+
+    estimatedPrintTimeChanged = pyqtSignal()
+
+    @pyqtProperty(Duration, notify = estimatedPrintTimeChanged)
+    def estimatedPrintTime(self):
+        return self._estimated_print_time[self._active_build_plate]
 
     materialLengthsChanged = pyqtSignal()
 
@@ -176,7 +186,8 @@ class PrintInformation(QObject):
 
     def _onPrintDurationMessage(self, build_plate_number, print_time: Dict[str, int], material_amounts: list):
         self._updateTotalPrintTimePerFeature(build_plate_number, print_time)
-        self.currentPrintTimeChanged.emit()
+
+        self._updatePrintTimeEstimation(build_plate_number)
 
         self._material_amounts = material_amounts
         self._calculateInformation(build_plate_number)
@@ -199,6 +210,30 @@ class PrintInformation(QObject):
         if build_plate_number not in self._current_print_time:
             self._current_print_time[build_plate_number] = Duration(None, self)
         self._current_print_time[build_plate_number].setDuration(total_estimated_time)
+        self.currentPrintTimeChanged.emit()
+
+    def _updatePrintTimeEstimation(self, build_plate_number: int) -> None:
+        # Initialize if the entry does not exist
+        if build_plate_number not in self._estimated_print_time:
+            self._estimated_print_time[build_plate_number] = Duration(None, self)
+
+        global_stack = self._application.getGlobalContainerStack()
+        if not global_stack:
+            return
+        statistics = self._application.getSceneStatistics()
+        volume = statistics["volume"] / 1000
+        surface_area = statistics["surface_area"] / 100
+        infill_line_distance = global_stack.getProperty("infill_line_distance", "value")
+
+        if volume == 0 or surface_area == 0:
+            self._estimated_print_time[build_plate_number].setDuration(-1)
+            return
+
+        input_data = [volume, surface_area, infill_line_distance]
+        predicted_duration = self._print_time_estimator.predict(input_data)
+
+        self._estimated_print_time[build_plate_number].setDuration(predicted_duration)
+        self.estimatedPrintTimeChanged.emit()
 
     def _calculateInformation(self, build_plate_number):
         global_stack = self._application.getGlobalContainerStack()
@@ -275,6 +310,7 @@ class PrintInformation(QObject):
             self.materialCostsChanged.emit()
             self.materialNamesChanged.emit()
             self.currentPrintTimeChanged.emit()
+            self.estimatedPrintTimeChanged.emit()
 
     def _onActiveMaterialsChanged(self, *args, **kwargs):
         for build_plate_number in range(self._multi_build_plate_model.maxBuildPlate + 1):
@@ -410,6 +446,16 @@ class PrintInformation(QObject):
                 result[feature] = time
         return result
 
+    # def _onGlobalStackChanged(self, *args):
+    #     activeMachine = self._application.getMachineManager().activeMachine
+    #     if activeMachine:
+    #         activeMachine.propertyChanged.disconnect(self.dummyFunction)
+    #         activeMachine.propertyChanged.connect(self.dummyFunction)
+    #     self.setToZeroPrintInformation()
+    #
+    # def dummyFunction(self, *args):
+    #     self.setToZeroPrintInformation()
+
     # Simulate message with zero time duration
     def setToZeroPrintInformation(self, build_plate = None):
         if build_plate is None:
@@ -434,3 +480,13 @@ class PrintInformation(QObject):
             return
 
         self.setToZeroPrintInformation(self._active_build_plate)
+
+class PrintTimeEstimator:
+
+    def __init__(self):
+        pass
+
+    ##  Returns the predicted time given some input data
+    def predict(self, input: List[float], normalize: bool = True) -> int:
+        print("Predicting time using the following data: {}".format(input))
+        return 1500
