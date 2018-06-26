@@ -139,6 +139,7 @@ class CuraApplication(QtApplication):
         ExtruderStack = Resources.UserType + 9
         DefinitionChangesContainer = Resources.UserType + 10
         SettingVisibilityPreset = Resources.UserType + 11
+        Misc = Resources.UserType + 12
 
     Q_ENUMS(ResourceTypes)
 
@@ -195,6 +196,7 @@ class CuraApplication(QtApplication):
         self._volume = None
         self._output_devices = {}
         self._print_information = None
+        self._print_estimation = None
         self._previous_active_tool = None
         self._platform_activity = False
         self._scene_bounding_box = AxisAlignedBox.Null
@@ -347,6 +349,7 @@ class CuraApplication(QtApplication):
 
         Resources.addType(self.ResourceTypes.QmlFiles, "qml")
         Resources.addType(self.ResourceTypes.Firmware, "firmware")
+        Resources.addType(self.ResourceTypes.Misc, "misc")
 
     # Adds all empty containers.
     def __addAllEmptyContainers(self) -> None:
@@ -461,6 +464,7 @@ class CuraApplication(QtApplication):
             "MonitorStage",
             "LocalFileOutputDevice",
             "LocalContainerProvider",
+            "PrintTimeEstimator",
 
             # Views:
             "SimpleView",
@@ -707,6 +711,7 @@ class CuraApplication(QtApplication):
 
         # initialize info objects
         self._print_information = PrintInformation.PrintInformation(self)
+        self._print_estimation = PrintEstimation.PrintEstimation(self)
         self._cura_actions = CuraActions.CuraActions(self)
 
         # Initialize setting visibility presets model
@@ -888,6 +893,10 @@ class CuraApplication(QtApplication):
     def getPrintInformation(self):
         return self._print_information
 
+    ##  Get print estimation
+    def getPrintEstimation(self):
+        return self._print_estimation
+
     def getQualityProfilesDropDownMenuModel(self, *args, **kwargs):
         if self._quality_profile_drop_down_menu_model is None:
             self._quality_profile_drop_down_menu_model = QualityProfilesDropDownMenuModel(self)
@@ -908,6 +917,7 @@ class CuraApplication(QtApplication):
         engine.rootContext().setContextProperty("Printer", self)
         engine.rootContext().setContextProperty("CuraApplication", self)
         engine.rootContext().setContextProperty("PrintInformation", self._print_information)
+        engine.rootContext().setContextProperty("PrintEstimation", self._print_estimation)
         engine.rootContext().setContextProperty("CuraActions", self._cura_actions)
 
         qmlRegisterUncreatableType(CuraApplication, "Cura", 1, 0, "ResourceTypes", "Just an Enum type")

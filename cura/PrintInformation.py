@@ -182,7 +182,7 @@ class PrintInformation(QObject):
         self._calculateInformation(build_plate_number)
 
     def _updateTotalPrintTimePerFeature(self, build_plate_number, print_time: Dict[str, int]):
-        total_estimated_time = 0
+        total_estimated_time = -1
 
         if build_plate_number not in self._print_time_message_values:
             self._initPrintTimeMessageValues(build_plate_number)
