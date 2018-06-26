@@ -78,6 +78,7 @@ class PrintInformation(QObject):
 
         self._application.globalContainerStackChanged.connect(self._updateJobName)
         self._application.globalContainerStackChanged.connect(self.setToZeroPrintInformation)
+        self._application.sceneBoundingBoxChanged.connect(self._updatePrintTimeEstimation)
         self._application.fileLoaded.connect(self.setBaseName)
         self._application.workspaceLoaded.connect(self.setProjectName)
         self._multi_build_plate_model.activeBuildPlateChanged.connect(self._onActiveBuildPlateChanged)
@@ -93,7 +94,7 @@ class PrintInformation(QObject):
     # and time for each feature
     def initializeCuraMessagePrintTimeProperties(self):
         self._current_print_time = {}    # type: Dict[int, Duration]
-        self._estimated_print_time = {}  # type: Dict[int, Duration]
+        self._estimated_print_time = Duration(None, self)  # type: Duration
         self._print_time_estimator = PrintTimeEstimator()
 
         self._print_time_message_translations = {
@@ -131,8 +132,6 @@ class PrintInformation(QObject):
             self._material_names[self._active_build_plate] = []
         if self._active_build_plate not in self._current_print_time:
             self._current_print_time[self._active_build_plate] = Duration(None, self)
-        if self._active_build_plate not in self._estimated_print_time:
-            self._estimated_print_time[self._active_build_plate] = Duration(None, self)
 
     currentPrintTimeChanged = pyqtSignal()
 
@@ -155,7 +154,7 @@ class PrintInformation(QObject):
 
     @pyqtProperty(Duration, notify = estimatedPrintTimeChanged)
     def estimatedPrintTime(self):
-        return self._estimated_print_time[self._active_build_plate]
+        return self._estimated_print_time
 
     materialLengthsChanged = pyqtSignal()
 
@@ -187,8 +186,6 @@ class PrintInformation(QObject):
     def _onPrintDurationMessage(self, build_plate_number, print_time: Dict[str, int], material_amounts: list):
         self._updateTotalPrintTimePerFeature(build_plate_number, print_time)
 
-        self._updatePrintTimeEstimation(build_plate_number)
-
         self._material_amounts = material_amounts
         self._calculateInformation(build_plate_number)
 
@@ -212,11 +209,7 @@ class PrintInformation(QObject):
         self._current_print_time[build_plate_number].setDuration(total_estimated_time)
         self.currentPrintTimeChanged.emit()
 
-    def _updatePrintTimeEstimation(self, build_plate_number: int) -> None:
-        # Initialize if the entry does not exist
-        if build_plate_number not in self._estimated_print_time:
-            self._estimated_print_time[build_plate_number] = Duration(None, self)
-
+    def _updatePrintTimeEstimation(self) -> None:
         global_stack = self._application.getGlobalContainerStack()
         if not global_stack:
             return
@@ -225,14 +218,15 @@ class PrintInformation(QObject):
         surface_area = statistics["surface_area"] / 100
         infill_line_distance = global_stack.getProperty("infill_line_distance", "value")
 
+        # If there is no elements in the build plate, then reset the value
         if volume == 0 or surface_area == 0:
-            self._estimated_print_time[build_plate_number].setDuration(-1)
+            self._estimated_print_time.setDuration(-1)
             return
 
         input_data = [volume, surface_area, infill_line_distance]
         predicted_duration = self._print_time_estimator.predict(input_data)
 
-        self._estimated_print_time[build_plate_number].setDuration(predicted_duration)
+        self._estimated_print_time.setDuration(predicted_duration)
         self.estimatedPrintTimeChanged.emit()
 
     def _calculateInformation(self, build_plate_number):
@@ -446,15 +440,11 @@ class PrintInformation(QObject):
                 result[feature] = time
         return result
 
-    # def _onGlobalStackChanged(self, *args):
+    # def _onEngineCreated(self):
     #     activeMachine = self._application.getMachineManager().activeMachine
     #     if activeMachine:
-    #         activeMachine.propertyChanged.disconnect(self.dummyFunction)
-    #         activeMachine.propertyChanged.connect(self.dummyFunction)
-    #     self.setToZeroPrintInformation()
-    #
-    # def dummyFunction(self, *args):
-    #     self.setToZeroPrintInformation()
+    #         activeMachine.propertyChanged.disconnect(self._updatePrintTimeEstimation)
+    #         activeMachine.propertyChanged.connect(self._updatePrintTimeEstimation)
 
     # Simulate message with zero time duration
     def setToZeroPrintInformation(self, build_plate = None):
