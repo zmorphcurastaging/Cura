@@ -6,7 +6,7 @@ import math
 import os
 import unicodedata
 import re  # To create abbreviations for printer names.
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtProperty, pyqtSlot
 
@@ -16,6 +16,7 @@ from UM.Qt.Duration import Duration
 from UM.Scene.SceneNode import SceneNode
 from UM.i18n import i18nCatalog
 from UM.MimeTypeDatabase import MimeTypeDatabase
+from cura.PrintTimeEstimator import PrintTimeEstimator
 
 catalog = i18nCatalog("cura")
 
@@ -210,24 +211,32 @@ class PrintInformation(QObject):
         self.currentPrintTimeChanged.emit()
 
     def _updatePrintTimeEstimation(self) -> None:
-        global_stack = self._application.getGlobalContainerStack()
-        if not global_stack:
-            return
-        statistics = self._application.getSceneStatistics()
-        volume = statistics["volume"] / 1000
-        surface_area = statistics["surface_area"] / 100
-        infill_line_distance = global_stack.getProperty("infill_line_distance", "value")
-
-        # If there is no elements in the build plate, then reset the value
-        if volume == 0 or surface_area == 0:
+        input_data = self._getInputDataToPrintTimeEstimation()
+        # If there are no elements in the input data, then reset the value
+        if input_data is None:
             self._estimated_print_time.setDuration(-1)
             return
 
-        input_data = [volume, surface_area, infill_line_distance]
         predicted_duration = self._print_time_estimator.predict(input_data)
 
         self._estimated_print_time.setDuration(predicted_duration)
         self.estimatedPrintTimeChanged.emit()
+
+    def _getInputDataToPrintTimeEstimation(self) -> Optional[List[float]]:
+        global_stack = self._application.getGlobalContainerStack()
+        if not global_stack:
+            return None
+
+        statistics = self._application.getSceneStatistics()
+        volume = statistics["volume"] / 1000
+        surface_area = statistics["surface_area"] / 100
+        layer_height = global_stack.getProperty("layer_height", "value")
+        infill_line_distance = global_stack.extruders["0"].getProperty("infill_line_distance", "value")
+
+        if volume == 0 or surface_area == 0:
+            return None
+
+        return [volume, surface_area, layer_height, infill_line_distance]
 
     def _calculateInformation(self, build_plate_number):
         global_stack = self._application.getGlobalContainerStack()
@@ -470,13 +479,3 @@ class PrintInformation(QObject):
             return
 
         self.setToZeroPrintInformation(self._active_build_plate)
-
-class PrintTimeEstimator:
-
-    def __init__(self):
-        pass
-
-    ##  Returns the predicted time given some input data
-    def predict(self, input: List[float], normalize: bool = True) -> int:
-        print("Predicting time using the following data: {}".format(input))
-        return 1500
