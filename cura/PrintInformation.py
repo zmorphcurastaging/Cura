@@ -8,7 +8,7 @@ import unicodedata
 import re  # To create abbreviations for printer names.
 from typing import Dict, List, Optional
 
-from PyQt5.QtCore import QObject, pyqtSignal, pyqtProperty, pyqtSlot
+from PyQt5.QtCore import QObject, pyqtSignal, pyqtProperty, pyqtSlot, QTimer
 
 from UM.i18n import i18nCatalog
 from UM.Logger import Logger
@@ -78,7 +78,7 @@ class PrintInformation(QObject):
         self._multi_build_plate_model = self._application.getMultiBuildPlateModel()
 
         self._application.globalContainerStackChanged.connect(self._updateJobName)
-        self._application.globalContainerStackChanged.connect(self.setToZeroPrintInformation)
+        self._application.globalContainerStackChanged.connect(self._onGlobalStackChanged)
         self._application.sceneBoundingBoxChanged.connect(self._updatePrintTimeEstimation)
         self._application.fileLoaded.connect(self.setBaseName)
         self._application.workspaceLoaded.connect(self.setProjectName)
@@ -91,12 +91,18 @@ class PrintInformation(QObject):
 
         self._material_amounts = []
 
+        self._setting_change_timer = QTimer()
+        self._setting_change_timer.setInterval(150)
+        self._setting_change_timer.setSingleShot(True)
+        self._setting_change_timer.timeout.connect(self._updatePrintTimeEstimation)
+
     # Crate cura message translations and using translation keys initialize empty time Duration object for total time
     # and time for each feature
     def initializeCuraMessagePrintTimeProperties(self):
         self._current_print_time = {}    # type: Dict[int, Duration]
         self._estimated_print_time = Duration(None, self)  # type: Duration
         self._print_time_estimator = PrintTimeEstimator()
+        self._watched_settings = ["layer_height", "infill_line_distance"]
 
         self._print_time_message_translations = {
             "inset_0": catalog.i18nc("@tooltip", "Outer Wall"),
@@ -449,14 +455,28 @@ class PrintInformation(QObject):
                 result[feature] = time
         return result
 
-    # def _onEngineCreated(self):
-    #     activeMachine = self._application.getMachineManager().activeMachine
-    #     if activeMachine:
-    #         activeMachine.propertyChanged.disconnect(self._updatePrintTimeEstimation)
-    #         activeMachine.propertyChanged.connect(self._updatePrintTimeEstimation)
+    def _onGlobalStackChanged(self):
+        activeMachine = self._application.getMachineManager().activeMachine
+        if activeMachine:
+            activeMachine.propertyChanged.disconnect(self._onSettingPropertyChanged)
+            activeMachine.propertyChanged.connect(self._onSettingPropertyChanged)
+            for extruder in activeMachine.extruders.values():
+                extruder.propertyChanged.disconnect(self._onSettingPropertyChanged)
+                extruder.propertyChanged.connect(self._onSettingPropertyChanged)
+
+        self.setToZeroPrintInformation()
+
+    def _onSettingPropertyChanged(self, setting_key: str, property_name: str):
+        if property_name != "value":
+            return
+
+        if setting_key in self._watched_settings:
+            self._setting_change_timer.start()
+        self.setToZeroPrintInformation()
 
     # Simulate message with zero time duration
     def setToZeroPrintInformation(self, build_plate = None):
+        self._estimated_print_time.setDuration(-1)
         if build_plate is None:
             build_plate = self._active_build_plate
 

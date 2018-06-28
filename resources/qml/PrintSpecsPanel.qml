@@ -16,6 +16,7 @@ Item
     property variant printMaterialWeights: PrintInformation.materialWeights
     property variant printMaterialCosts: PrintInformation.materialCosts
     property variant printMaterialNames: PrintInformation.materialNames
+    property bool isEstimatedTimeShowing: (!printDuration || !printDuration.valid) && printEstimation && printEstimation.valid
 
     signal showTooltip(Item item, point location, string text)
     signal hideTooltip()
@@ -29,7 +30,13 @@ Item
         id: timeDetails
         anchors.left: parent.left
         anchors.bottom: costSpec.top
-        font: UM.Theme.getFont("large")
+        font
+        {
+            family: UM.Theme.getFont("large").family
+            weight: UM.Theme.getFont("large").weight
+            pointSize: UM.Theme.getFont("large").size
+            italic: isEstimatedTimeShowing
+        }
         color: UM.Theme.getColor("text_subtext")
         text:
         {
@@ -37,9 +44,9 @@ Item
                 return printDuration.getDisplayString(UM.DurationFormat.Short)
             else
                 if (printEstimation && printEstimation.valid)
-                    return catalog.i18nc("@label Hours and minutes", "(aprox.) " + printEstimation.getDisplayString(UM.DurationFormat.Short))
+                    return "~ " + printEstimation.getDisplayString(UM.DurationFormat.Short)
                 else
-                    return catalog.i18nc("@label Hours and minutes", "No estimation")
+                    return ""
         }
         renderType: Text.NativeRendering
 
@@ -173,6 +180,7 @@ Item
         color: UM.Theme.getColor("text_subtext")
         elide: Text.ElideMiddle
         width: parent.width
+        visible: printDuration && printDuration.valid
         property string tooltipText
         text:
         {

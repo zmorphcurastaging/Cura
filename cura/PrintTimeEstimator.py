@@ -43,7 +43,8 @@ class PrintTimeEstimator:
                 Logger.log("i", "No model file found in {path}. Can't continue the prediction. Exception:\n{exc}".format(path = self._nn_filepath, exc=str(e)))
                 return -1
 
-        return int(predicted_value[0][0] * 3600)    # The result is in hours, so convert it to seconds
+        estimated_time = self._estimatedTimeWithErrorRange(predicted_value[0][0] * 3600)
+        return estimated_time    # The result is in hours, so convert it to seconds
 
     ##  Normalize the input data between 0 and 1 since it is the input of the NN
     #   TODO Now it is done manually, in the future it must be done in a different way
@@ -55,3 +56,14 @@ class PrintTimeEstimator:
         max = np.array([1000.0, 600.0, 0.15, 8.0])
 
         return (data - min) / (max - min)
+
+    ##  Given the time in seconds, returns the same value with and error
+    def _estimatedTimeWithErrorRange(self, value: float) -> int:
+        # TODO Implement a function that returns the value with an error in steps depending on the amount of time.
+        # For instance, if the time is 3600 secs + 5% = 1h 3min. Instead return 1h 0min that point to the closest half an hour.
+
+        # Add an error
+        error = 0.1  # type: float # 5%
+        new_value = value * (1 + error)
+        new_value = round(new_value / 1800) * 1800
+        return max(1800, int(new_value))
