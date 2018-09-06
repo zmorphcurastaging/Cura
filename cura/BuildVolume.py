@@ -3,6 +3,7 @@
 
 from cura.Scene.CuraSceneNode import CuraSceneNode
 from cura.Settings.ExtruderManager import ExtruderManager
+from UM.Application import Application #To modify the maximum zoom level.
 from UM.i18n import i18nCatalog
 from UM.Scene.Platform import Platform
 from UM.Scene.Iterator.BreadthFirstIterator import BreadthFirstIterator
@@ -47,10 +48,10 @@ class BuildVolume(SceneNode):
         self._disallowed_area_color = None
         self._error_area_color = None
 
-        self._width = 0
-        self._height = 0
-        self._depth = 0
-        self._shape = ""
+        self._width = 0 #type: float
+        self._height = 0 #type: float
+        self._depth = 0 #type: float
+        self._shape = "" #type: str
 
         self._shader = None
 
@@ -154,21 +155,27 @@ class BuildVolume(SceneNode):
         if active_extruder_changed is not None:
             active_extruder_changed.connect(self._updateDisallowedAreasAndRebuild)
 
-    def setWidth(self, width):
+    def setWidth(self, width: float) -> None:
         if width is not None:
             self._width = width
 
-    def setHeight(self, height):
+    def setHeight(self, height: float) -> None:
         if height is not None:
             self._height = height
 
-    def setDepth(self, depth):
+    def setDepth(self, depth: float) -> None:
         if depth is not None:
             self._depth = depth
 
-    def setShape(self, shape: str):
+    def setShape(self, shape: str) -> None:
         if shape:
             self._shape = shape
+
+    ##  Get the length of the 3D diagonal through the build volume.
+    #
+    #   This gives a sense of the scale of the build volume in general.
+    def getDiagonalSize(self) -> float:
+        return math.sqrt(self._width * self._width + self._height * self._height + self._depth * self._depth)
 
     def getDisallowedAreas(self) -> List[Polygon]:
         return self._disallowed_areas
@@ -235,6 +242,8 @@ class BuildVolume(SceneNode):
 
                 # Mark the node as outside build volume if the set extruder is disabled
                 extruder_position = node.callDecoration("getActiveExtruderPosition")
+                if extruder_position not in self._global_container_stack.extruders:
+                    continue
                 if not self._global_container_stack.extruders[extruder_position].isEnabled:
                     node.setOutsideBuildArea(True)
                     continue
@@ -294,7 +303,7 @@ class BuildVolume(SceneNode):
         if not self._width or not self._height or not self._depth:
             return
 
-        if not self._application._qml_engine:
+        if not self._engine_ready:
             return
 
         if not self._volume_outline_color:
@@ -551,6 +560,12 @@ class BuildVolume(SceneNode):
 
             if self._engine_ready:
                 self.rebuild()
+
+            camera = Application.getInstance().getController().getCameraTool()
+            if camera:
+                diagonal = self.getDiagonalSize()
+                if diagonal > 1:
+                    camera.setZoomRange(min = 0.1, max = diagonal * 5) #You can zoom out up to 5 times the diagonal. This gives some space around the volume.
 
     def _onEngineCreated(self):
         self._engine_ready = True

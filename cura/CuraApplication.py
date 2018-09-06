@@ -1,13 +1,12 @@
 # Copyright (c) 2018 Ultimaker B.V.
 # Cura is released under the terms of the LGPLv3 or higher.
 
-import copy
-import json
 import os
 import sys
 import time
 from typing import Dict
 from typing import Union
+from typing import cast, TYPE_CHECKING
 
 import numpy
 
@@ -16,7 +15,6 @@ from PyQt5.QtGui import QColor, QIcon
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtQml import qmlRegisterUncreatableType, qmlRegisterSingletonType, qmlRegisterType
 
-from UM.Qt.QtApplication import QtApplication
 from UM.Scene.SceneNode import SceneNode
 from UM.Scene.Camera import Camera
 from UM.Math.Vector import Vector
@@ -30,6 +28,8 @@ from UM.Scene.Iterator.DepthFirstIterator import DepthFirstIterator
 from UM.Mesh.ReadMeshJob import ReadMeshJob
 from UM.Logger import Logger
 from UM.Preferences import Preferences
+from UM.Qt.QtApplication import QtApplication #The class we're inheriting from.
+from UM.View.SelectionPass import SelectionPass #For typing.
 from UM.Scene.Selection import Selection
 from UM.Scene.GroupDecorator import GroupDecorator
 from UM.Settings.ContainerStack import ContainerStack
@@ -69,9 +69,9 @@ from cura.Machines.Models.NozzleModel import NozzleModel
 from cura.Machines.Models.QualityProfilesDropDownMenuModel import QualityProfilesDropDownMenuModel
 from cura.Machines.Models.CustomQualityProfilesDropDownMenuModel import CustomQualityProfilesDropDownMenuModel
 from cura.Machines.Models.MultiBuildPlateModel import MultiBuildPlateModel
-from cura.Machines.Models.MaterialManagementModel import MaterialManagementModel
+from cura.Machines.Models.FavoriteMaterialsModel import FavoriteMaterialsModel
 from cura.Machines.Models.GenericMaterialsModel import GenericMaterialsModel
-from cura.Machines.Models.BrandMaterialsModel import BrandMaterialsModel
+from cura.Machines.Models.MaterialBrandsModel import MaterialBrandsModel
 from cura.Machines.Models.QualityManagementModel import QualityManagementModel
 from cura.Machines.Models.QualitySettingsModel import QualitySettingsModel
 from cura.Machines.Models.MachineManagementModel import MachineManagementModel
@@ -97,28 +97,35 @@ from . import CuraSplashScreen
 from . import CameraImageProvider
 from . import MachineActionManager
 
+from cura.TaskManagement.OnExitCallbackManager import OnExitCallbackManager
+
 from cura.Settings.MachineManager import MachineManager
 from cura.Settings.ExtruderManager import ExtruderManager
 from cura.Settings.UserChangesModel import UserChangesModel
 from cura.Settings.ExtrudersModel import ExtrudersModel
 from cura.Settings.MaterialSettingsVisibilityHandler import MaterialSettingsVisibilityHandler
 from cura.Settings.ContainerManager import ContainerManager
+from cura.Settings.SidebarCustomMenuItemsModel import SidebarCustomMenuItemsModel
+import cura.Settings.cura_empty_instance_containers
 
 from cura.ObjectsModel import ObjectsModel
 
 from UM.FlameProfiler import pyqtSlot
 
 
+if TYPE_CHECKING:
+    from plugins.SliceInfoPlugin.SliceInfo import SliceInfo
+
+
 numpy.seterr(all = "ignore")
 
-MYPY = False
-if not MYPY:
-    try:
-        from cura.CuraVersion import CuraVersion, CuraBuildType, CuraDebugMode
-    except ImportError:
-        CuraVersion = "master"  # [CodeStyle: Reflecting imported value]
-        CuraBuildType = ""
-        CuraDebugMode = False
+try:
+    from cura.CuraVersion import CuraVersion, CuraBuildType, CuraDebugMode, CuraSDKVersion
+except ImportError:
+    CuraVersion = "master"  # [CodeStyle: Reflecting imported value]
+    CuraBuildType = ""
+    CuraDebugMode = False
+    CuraSDKVersion = ""
 
 
 class CuraApplication(QtApplication):
@@ -156,6 +163,8 @@ class CuraApplication(QtApplication):
         self.default_theme = "cura-light"
 
         self._boot_loading_time = time.time()
+
+        self._on_exit_callback_manager = OnExitCallbackManager(self)
 
         # Variables set from CLI
         self._files_to_open = []
@@ -214,7 +223,6 @@ class CuraApplication(QtApplication):
 
         self._message_box_callback = None
         self._message_box_callback_arguments = []
-        self._preferred_mimetype = ""
         self._i18n_catalog = None
 
         self._currently_loading_files = []
@@ -226,6 +234,10 @@ class CuraApplication(QtApplication):
         self._update_platform_activity_timer = None
 
         self._need_to_show_user_agreement = True
+
+        self._sidebar_custom_menu_items = []  # type: list # Keeps list of custom menu items for the side bar
+
+        self._plugins_loaded = False
 
         # Backups
         self._auto_save = None
@@ -282,6 +294,8 @@ class CuraApplication(QtApplication):
 
         self._machine_action_manager = MachineActionManager.MachineActionManager(self)
         self._machine_action_manager.initialize()
+
+        self.change_log_url = "https://ultimaker.com/ultimaker-cura-latest-features"
 
     def __sendCommandToSingleInstance(self):
         self._single_instance = SingleInstance(self, self._files_to_open)
@@ -362,42 +376,23 @@ class CuraApplication(QtApplication):
         # Add empty variant, material and quality containers.
         # Since they are empty, they should never be serialized and instead just programmatically created.
         # We need them to simplify the switching between materials.
-        empty_container = self._container_registry.getEmptyInstanceContainer()
-        self.empty_container = empty_container
+        self.empty_container = cura.Settings.cura_empty_instance_containers.empty_container
 
-        empty_definition_changes_container = copy.deepcopy(empty_container)
-        empty_definition_changes_container.setMetaDataEntry("id", "empty_definition_changes")
-        empty_definition_changes_container.addMetaDataEntry("type", "definition_changes")
-        self._container_registry.addContainer(empty_definition_changes_container)
-        self.empty_definition_changes_container = empty_definition_changes_container
+        self._container_registry.addContainer(
+            cura.Settings.cura_empty_instance_containers.empty_definition_changes_container)
+        self.empty_definition_changes_container = cura.Settings.cura_empty_instance_containers.empty_definition_changes_container
 
-        empty_variant_container = copy.deepcopy(empty_container)
-        empty_variant_container.setMetaDataEntry("id", "empty_variant")
-        empty_variant_container.addMetaDataEntry("type", "variant")
-        self._container_registry.addContainer(empty_variant_container)
-        self.empty_variant_container = empty_variant_container
+        self._container_registry.addContainer(cura.Settings.cura_empty_instance_containers.empty_variant_container)
+        self.empty_variant_container = cura.Settings.cura_empty_instance_containers.empty_variant_container
 
-        empty_material_container = copy.deepcopy(empty_container)
-        empty_material_container.setMetaDataEntry("id", "empty_material")
-        empty_material_container.addMetaDataEntry("type", "material")
-        self._container_registry.addContainer(empty_material_container)
-        self.empty_material_container = empty_material_container
+        self._container_registry.addContainer(cura.Settings.cura_empty_instance_containers.empty_material_container)
+        self.empty_material_container = cura.Settings.cura_empty_instance_containers.empty_material_container
 
-        empty_quality_container = copy.deepcopy(empty_container)
-        empty_quality_container.setMetaDataEntry("id", "empty_quality")
-        empty_quality_container.setName("Not Supported")
-        empty_quality_container.addMetaDataEntry("quality_type", "not_supported")
-        empty_quality_container.addMetaDataEntry("type", "quality")
-        empty_quality_container.addMetaDataEntry("supported", False)
-        self._container_registry.addContainer(empty_quality_container)
-        self.empty_quality_container = empty_quality_container
+        self._container_registry.addContainer(cura.Settings.cura_empty_instance_containers.empty_quality_container)
+        self.empty_quality_container = cura.Settings.cura_empty_instance_containers.empty_quality_container
 
-        empty_quality_changes_container = copy.deepcopy(empty_container)
-        empty_quality_changes_container.setMetaDataEntry("id", "empty_quality_changes")
-        empty_quality_changes_container.addMetaDataEntry("type", "quality_changes")
-        empty_quality_changes_container.addMetaDataEntry("quality_type", "not_supported")
-        self._container_registry.addContainer(empty_quality_changes_container)
-        self.empty_quality_changes_container = empty_quality_changes_container
+        self._container_registry.addContainer(cura.Settings.cura_empty_instance_containers.empty_quality_changes_container)
+        self.empty_quality_changes_container = cura.Settings.cura_empty_instance_containers.empty_quality_changes_container
 
     # Initializes the version upgrade manager with by providing the paths for each resource type and the latest
     # versions.
@@ -415,43 +410,6 @@ class CuraApplication(QtApplication):
             }
         )
 
-        """
-        self._currently_loading_files = []
-        self._non_sliceable_extensions = []
-
-        self._machine_action_manager = MachineActionManager.MachineActionManager()
-        self._machine_manager = None    # This is initialized on demand.
-        self._extruder_manager = None
-        self._material_manager = None
-        self._quality_manager = None
-        self._object_manager = None
-        self._build_plate_model = None
-        self._multi_build_plate_model = None
-        self._setting_visibility_presets_model = None
-        self._setting_inheritance_manager = None
-        self._simple_mode_settings_manager = None
-        self._cura_scene_controller = None
-        self._machine_error_checker = None
-        self._auto_save = None
-        self._save_data_enabled = True
-
-        self._additional_components = {} # Components to add to certain areas in the interface
-
-        super().__init__(name = "cura",
-                         version = CuraVersion,
-                         buildtype = CuraBuildType,
-                         is_debug_mode = CuraDebugMode,
-                         tray_icon_name = "cura-icon-32.png",
-                         **kwargs)
-
-        # FOR TESTING ONLY
-        if kwargs["parsed_command_line"].get("trigger_early_crash", False):
-            assert not "This crash is triggered by the trigger_early_crash command line argument."
-
-        self._variant_manager = None
-
-        self.default_theme = "cura-light"
-        """
     # Runs preparations that needs to be done before the starting process.
     def startSplashWindowPhase(self):
         super().startSplashWindowPhase()
@@ -531,7 +489,9 @@ class CuraApplication(QtApplication):
         preferences.addPreference("view/filter_current_build_plate", False)
         preferences.addPreference("cura/sidebar_collapsed", False)
 
-        self._need_to_show_user_agreement = not self.getPreferences().getValue("general/accepted_user_agreement")
+        preferences.addPreference("cura/favorite_materials", ";".join([]))
+
+        self._need_to_show_user_agreement = not preferences.getValue("general/accepted_user_agreement")
 
         for key in [
             "dialog_load_path",  # dialog_save_path is in LocalFileOutputDevicePlugin
@@ -544,9 +504,6 @@ class CuraApplication(QtApplication):
 
         self.applicationShuttingDown.connect(self.saveSettings)
         self.engineCreatedSignal.connect(self._onEngineCreated)
-
-        self.globalContainerStackChanged.connect(self._onGlobalContainerChanged)
-        self._onGlobalContainerChanged()
 
         self.getCuraSceneController().setActiveBuildPlate(0)  # Initialize
 
@@ -562,8 +519,8 @@ class CuraApplication(QtApplication):
     def setNeedToShowUserAgreement(self, set_value = True):
         self._need_to_show_user_agreement = set_value
 
-    ## The "Quit" button click event handler.
-    @pyqtSlot()
+    # DO NOT call this function to close the application, use checkAndExitApplication() instead which will perform
+    # pre-exit checks such as checking for in-progress USB printing, etc.
     def closeApplication(self):
         Logger.log("i", "Close application")
         main_window = self.getMainWindow()
@@ -571,6 +528,32 @@ class CuraApplication(QtApplication):
             main_window.close()
         else:
             self.exit(0)
+
+    # This function first performs all upon-exit checks such as USB printing that is in progress.
+    # Use this to close the application.
+    @pyqtSlot()
+    def checkAndExitApplication(self) -> None:
+        self._on_exit_callback_manager.resetCurrentState()
+        self._on_exit_callback_manager.triggerNextCallback()
+
+    @pyqtSlot(result = bool)
+    def getIsAllChecksPassed(self) -> bool:
+        return self._on_exit_callback_manager.getIsAllChecksPassed()
+
+    def getOnExitCallbackManager(self) -> "OnExitCallbackManager":
+        return self._on_exit_callback_manager
+
+    def triggerNextExitCheck(self) -> None:
+        self._on_exit_callback_manager.triggerNextCallback()
+
+    showConfirmExitDialog = pyqtSignal(str, arguments = ["message"])
+
+    def setConfirmExitDialogCallback(self, callback):
+        self._confirm_exit_dialog_callback = callback
+
+    @pyqtSlot(bool)
+    def callConfirmExitDialogCallback(self, yes_or_no: bool):
+        self._confirm_exit_dialog_callback(yes_or_no)
 
     ##  Signal to connect preferences action in QML
     showPreferencesWindow = pyqtSignal()
@@ -636,7 +619,7 @@ class CuraApplication(QtApplication):
     # Cura has multiple locations where instance containers need to be saved, so we need to handle this differently.
     def saveSettings(self):
         if not self.started or not self._save_data_enabled:
-            # Do not do saving during application start or when data should not be safed on quit.
+            # Do not do saving during application start or when data should not be saved on quit.
             return
         ContainerRegistry.getInstance().saveDirtyContainers()
         self.savePreferences()
@@ -678,6 +661,7 @@ class CuraApplication(QtApplication):
         self._plugins_loaded = True
 
     def run(self):
+        super().run()
         container_registry = self._container_registry
 
         Logger.log("i", "Initializing variant manager")
@@ -784,7 +768,10 @@ class CuraApplication(QtApplication):
         # Initialize camera
         root = controller.getScene().getRoot()
         camera = Camera("3d", root)
-        camera.setPosition(Vector(-80, 250, 700))
+        diagonal = self.getBuildVolume().getDiagonalSize()
+        if diagonal < 1: #No printer added yet. Set a default camera distance for normal-sized printers.
+            diagonal = 375
+        camera.setPosition(Vector(-80, 250, 700) * diagonal / 375)
         camera.setPerspective(True)
         camera.lookAt(Vector(0, 0, 0))
         controller.getScene().setActiveCamera("3d")
@@ -918,6 +905,7 @@ class CuraApplication(QtApplication):
         engine.rootContext().setContextProperty("CuraApplication", self)
         engine.rootContext().setContextProperty("PrintInformation", self._print_information)
         engine.rootContext().setContextProperty("CuraActions", self._cura_actions)
+        engine.rootContext().setContextProperty("CuraSDKVersion", CuraSDKVersion)
 
         qmlRegisterUncreatableType(CuraApplication, "Cura", 1, 0, "ResourceTypes", "Just an Enum type")
 
@@ -934,9 +922,9 @@ class CuraApplication(QtApplication):
         qmlRegisterType(InstanceContainer, "Cura", 1, 0, "InstanceContainer")
         qmlRegisterType(ExtrudersModel, "Cura", 1, 0, "ExtrudersModel")
 
+        qmlRegisterType(FavoriteMaterialsModel, "Cura", 1, 0, "FavoriteMaterialsModel")
         qmlRegisterType(GenericMaterialsModel, "Cura", 1, 0, "GenericMaterialsModel")
-        qmlRegisterType(BrandMaterialsModel, "Cura", 1, 0, "BrandMaterialsModel")
-        qmlRegisterType(MaterialManagementModel, "Cura", 1, 0, "MaterialManagementModel")
+        qmlRegisterType(MaterialBrandsModel, "Cura", 1, 0, "MaterialBrandsModel")
         qmlRegisterType(QualityManagementModel, "Cura", 1, 0, "QualityManagementModel")
         qmlRegisterType(MachineManagementModel, "Cura", 1, 0, "MachineManagementModel")
 
@@ -952,6 +940,7 @@ class CuraApplication(QtApplication):
         qmlRegisterType(MachineNameValidator, "Cura", 1, 0, "MachineNameValidator")
         qmlRegisterType(UserChangesModel, "Cura", 1, 0, "UserChangesModel")
         qmlRegisterSingletonType(ContainerManager, "Cura", 1, 0, "ContainerManager", ContainerManager.getInstance)
+        qmlRegisterType(SidebarCustomMenuItemsModel, "Cura", 1, 0, "SidebarCustomMenuItemsModel")
 
         # As of Qt5.7, it is necessary to get rid of any ".." in the path for the singleton to work.
         actions_url = QUrl.fromLocalFile(os.path.abspath(Resources.getPath(CuraApplication.ResourceTypes.QmlFiles, "Actions.qml")))
@@ -999,29 +988,13 @@ class CuraApplication(QtApplication):
             self._camera_animation.setTarget(Selection.getSelectedObject(0).getWorldPosition())
             self._camera_animation.start()
 
-    def _onGlobalContainerChanged(self):
-        if self._global_container_stack is not None:
-            machine_file_formats = [file_type.strip() for file_type in self._global_container_stack.getMetaDataEntry("file_formats").split(";")]
-            new_preferred_mimetype = ""
-            if machine_file_formats:
-                new_preferred_mimetype =  machine_file_formats[0]
-
-            if new_preferred_mimetype != self._preferred_mimetype:
-                self._preferred_mimetype = new_preferred_mimetype
-                self.preferredOutputMimetypeChanged.emit()
-
     requestAddPrinter = pyqtSignal()
     activityChanged = pyqtSignal()
     sceneBoundingBoxChanged = pyqtSignal()
-    preferredOutputMimetypeChanged = pyqtSignal()
 
     @pyqtProperty(bool, notify = activityChanged)
     def platformActivity(self):
         return self._platform_activity
-
-    @pyqtProperty(str, notify=preferredOutputMimetypeChanged)
-    def preferredOutputMimetype(self):
-        return self._preferred_mimetype
 
     @pyqtProperty(str, notify = sceneBoundingBoxChanged)
     def getSceneBoundingBoxString(self):
@@ -1536,7 +1509,9 @@ class CuraApplication(QtApplication):
 
     @pyqtSlot("QSize")
     def setMinimumWindowSize(self, size):
-        self.getMainWindow().setMinimumSize(size)
+        main_window = self.getMainWindow()
+        if main_window:
+            main_window.setMinimumSize(size)
 
     def getBuildVolume(self):
         return self._volume
@@ -1581,7 +1556,7 @@ class CuraApplication(QtApplication):
             self.callLater(self.openProjectFile.emit, file)
             return
 
-        if Preferences.getInstance().getValue("cura/select_models_on_load"):
+        if self.getPreferences().getValue("cura/select_models_on_load"):
             Selection.clear()
 
         f = file.toLocalFile()
@@ -1618,12 +1593,13 @@ class CuraApplication(QtApplication):
 
     def _readMeshFinished(self, job):
         nodes = job.getResult()
-        filename = job.getFileName()
-        self._currently_loading_files.remove(filename)
+        file_name = job.getFileName()
+        file_name_lower = file_name.lower()
+        file_extension = file_name_lower.split(".")[-1]
+        self._currently_loading_files.remove(file_name)
 
-        self.fileLoaded.emit(filename)
-        arrange_objects_on_load = not self.getPreferences().getValue("cura/use_multi_build_plate")
-        target_build_plate = self.getMultiBuildPlateModel().activeBuildPlate if arrange_objects_on_load else -1
+        self.fileLoaded.emit(file_name)
+        target_build_plate = self.getMultiBuildPlateModel().activeBuildPlate
 
         root = self.getController().getScene().getRoot()
         fixed_nodes = []
@@ -1638,7 +1614,7 @@ class CuraApplication(QtApplication):
         default_extruder_position = self.getMachineManager().defaultExtruderPosition
         default_extruder_id = self._global_container_stack.extruders[default_extruder_position].getId()
 
-        select_models_on_load = Preferences.getInstance().getValue("cura/select_models_on_load")
+        select_models_on_load = self.getPreferences().getValue("cura/select_models_on_load")
 
         for original_node in nodes:
 
@@ -1654,15 +1630,11 @@ class CuraApplication(QtApplication):
                     node.scale(original_node.getScale())
 
             node.setSelectable(True)
-            node.setName(os.path.basename(filename))
+            node.setName(os.path.basename(file_name))
             self.getBuildVolume().checkBoundsAndUpdate(node)
 
-            is_non_sliceable = False
-            filename_lower = filename.lower()
-            for extension in self._non_sliceable_extensions:
-                if filename_lower.endswith(extension):
-                    is_non_sliceable = True
-                    break
+            is_non_sliceable = "." + file_extension in self._non_sliceable_extensions
+
             if is_non_sliceable:
                 self.callLater(lambda: self.getController().setActiveView("SimulationView"))
 
@@ -1681,7 +1653,7 @@ class CuraApplication(QtApplication):
                 if not child.getDecorator(ConvexHullDecorator):
                     child.addDecorator(ConvexHullDecorator())
 
-            if arrange_objects_on_load:
+            if file_extension != "3mf":
                 if node.callDecoration("isSliceable"):
                     # Only check position if it's not already blatantly obvious that it won't fit.
                     if node.getBoundingBox() is None or self._volume.getBoundingBox() is None or node.getBoundingBox().width < self._volume.getBoundingBox().width or node.getBoundingBox().depth < self._volume.getBoundingBox().depth:
@@ -1715,7 +1687,7 @@ class CuraApplication(QtApplication):
             if select_models_on_load:
                 Selection.add(node)
 
-        self.fileCompleted.emit(filename)
+        self.fileCompleted.emit(file_name)
 
     def addNonSliceableExtension(self, extension):
         self._non_sliceable_extensions.append(extension)
@@ -1739,13 +1711,22 @@ class CuraApplication(QtApplication):
     def _onContextMenuRequested(self, x: float, y: float) -> None:
         # Ensure we select the object if we request a context menu over an object without having a selection.
         if not Selection.hasSelection():
-            node = self.getController().getScene().findObject(self.getRenderer().getRenderPass("selection").getIdAtPosition(x, y))
+            node = self.getController().getScene().findObject(cast(SelectionPass, self.getRenderer().getRenderPass("selection")).getIdAtPosition(x, y))
             if node:
-                while(node.getParent() and node.getParent().callDecoration("isGroup")):
-                    node = node.getParent()
+                parent = node.getParent()
+                while(parent and parent.callDecoration("isGroup")):
+                    node = parent
+                    parent = node.getParent()
 
                 Selection.add(node)
 
     @pyqtSlot()
     def showMoreInformationDialogForAnonymousDataCollection(self):
-        self._plugin_registry.getPluginObject("SliceInfoPlugin").showMoreInfoDialog()
+        cast(SliceInfo, self._plugin_registry.getPluginObject("SliceInfoPlugin")).showMoreInfoDialog()
+
+    def addSidebarCustomMenuItem(self, menu_item: dict) -> None:
+        self._sidebar_custom_menu_items.append(menu_item)
+
+    def getSidebarCustomMenuItems(self) -> list:
+        return self._sidebar_custom_menu_items
+

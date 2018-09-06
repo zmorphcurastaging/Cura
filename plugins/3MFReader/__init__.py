@@ -18,11 +18,7 @@ catalog = i18nCatalog("cura")
 
 
 def getMetaData() -> Dict:
-    # Workarround for osx not supporting double file extensions correctly.
-    if Platform.isOSX():
-        workspace_extension = "3mf"
-    else:
-        workspace_extension = "curaproject.3mf"
+    workspace_extension = "3mf"
 
     metaData = {}
     if "3MFReader.ThreeMFReader" in sys.modules:
@@ -44,7 +40,7 @@ def getMetaData() -> Dict:
 
 def register(app):
     if "3MFReader.ThreeMFReader" in sys.modules:
-        return {"mesh_reader": ThreeMFReader.ThreeMFReader(app),
+        return {"mesh_reader": ThreeMFReader.ThreeMFReader(),
                 "workspace_reader": ThreeMFWorkspaceReader.ThreeMFWorkspaceReader()}
     else:
         return {}
