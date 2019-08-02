@@ -477,7 +477,7 @@ Item {
                         return excluded_settings;
                     }
                 }
-                delegate:Loader
+                delegate: Loader
                 {
                     id: loader
 
