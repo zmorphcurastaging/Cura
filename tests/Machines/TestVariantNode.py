@@ -8,9 +8,12 @@ import pytest
 from cura.Machines.VariantNode import VariantNode
 import copy
 
-instance_container_metadata_dict = {"fdmprinter": {"no_variant": [{"base_file": "material_1", "id": "material_1"}, {"base_file": "material_2", "id": "material_2"}]},
-                 "machine_1": {"no_variant": [{"base_file": "material_1", "id": "material_1"}, {"base_file": "material_2", "id": "material_2"}],
-                               "Variant One": [{"base_file": "material_1", "id": "material_1"}, {"base_file": "material_2", "id": "material_2"}]}}
+instance_container_metadata_dict = {
+    "fdmprinter": {"no_variant": [{"base_file": "material_1", "id": "material_1"}, {"base_file": "material_2", "id": "material_2"}]},
+    "machine_1": {"no_variant": [{"base_file": "material_1", "id": "material_1"}, {"base_file": "material_2", "id": "material_2"}],
+                           "Variant One": [{"base_file": "material_1", "id": "material_1"}, {"base_file": "material_2", "id": "material_2"}]
+                  }
+}
 
 
 material_node_added_test_data = [({"type": "Not a material"}, ["material_1", "material_2"]), # Wrong type
@@ -20,6 +23,25 @@ material_node_added_test_data = [({"type": "Not a material"}, ["material_1", "ma
                                  ({"type": "material", "base_file": "material_4", "definition": "machine_1", "variant_name": "Variant Three"}, ["material_1", "material_2"]), # Wrong variant
                                  ({"type": "material", "base_file": "material_4", "definition": "machine_1", "variant_name": "Variant One"}, ["material_1", "material_2", "material_4"])
                                  ]
+
+material_node_removed_metadata = [
+{"type": "material", "base_file": "material_1", "definition": "machine_1", "variant_name": "Variant One"},
+{"type": "material", "base_file": "material_1", "definition": "machine_1", "variant_name": "Variant One"}
+]
+
+material_node_removed_container_metadata = [
+    [{"id": "machine_1_Variant One", "name": "Variant One", "definition": "machine_1"}],
+    []  # no alternative material
+]
+
+material_node_removed_result_materials = [
+    ["material_1", "material_2"],
+    ["material_2"]  # expect material_1 to be removed when no alternative submaterials
+]
+
+material_node_removed_test_data = zip(material_node_removed_metadata, material_node_removed_container_metadata, material_node_removed_result_materials)
+
+
 
 material_node_update_test_data = [({"type": "material", "base_file": "material_1", "definition": "machine_1", "variant_name": "Variant One"}, ["material_1"], ["material_2"]),
                                   ({"type": "material", "base_file": "material_1", "definition": "fdmprinter", "variant_name": "Variant One"}, [], ["material_2", "material_1"]),  # Too generic
@@ -109,6 +131,23 @@ def test_materialAdded(container_registry, machine_node, metadata, material_resu
             with patch.dict(metadata_dict, metadata):
                 mocked_container = createMockedInstanceContainer()
                 variant_node._materialAdded(mocked_container)
+
+    assert len(material_result_list) == len(variant_node.materials)
+    for name in material_result_list:
+        assert name in variant_node.materials
+
+
+@pytest.mark.parametrize("metadata,container_metadata,material_result_list", material_node_removed_test_data)
+def test_materialRemoved(container_registry, machine_node, metadata, container_metadata, material_result_list):
+    container_registry.findContainersMetadata = MagicMock(return_value = container_metadata)
+
+    variant_node = createVariantNode("machine_1", machine_node, container_registry)
+    machine_node.exclude_materials = ["material_3"]
+    with patch("UM.Settings.ContainerRegistry.ContainerRegistry.getInstance", MagicMock(return_value = container_registry)):
+        with patch("cura.Machines.VariantNode.MaterialNode"):  # We're not testing the material node here, so patch it out.
+            with patch.dict(metadata_dict, metadata):
+                mocked_container = createMockedInstanceContainer()
+                variant_node._materialRemoved(mocked_container)
 
     assert len(material_result_list) == len(variant_node.materials)
     for name in material_result_list:
