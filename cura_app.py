@@ -12,6 +12,15 @@ from UM.Platform import Platform
 from cura import ApplicationMetadata
 from cura.ApplicationMetadata import CuraAppName
 
+if Platform.isWindows() and hasattr(sys, "frozen"):
+    DIR_NAME = os.path.dirname(sys.executable)
+    # add DIR_NAME and DIR_NAME/lib to the path so DLLs can be found
+    paths = os.environ.get("PATH", "").split(os.pathsep)
+    if DIR_NAME not in paths:
+        paths.insert(0, os.path.join(DIR_NAME, "lib"))
+        paths.insert(0, DIR_NAME)
+        os.environ["PATH"] = os.pathsep.join(paths)
+
 try:
     import sentry_sdk
     with_sentry_sdk = True
