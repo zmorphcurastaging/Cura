@@ -44,6 +44,7 @@ class PackagesModel(ListModel):
         self.addRoleName(Qt.UserRole + 23, "average_rating")
         self.addRoleName(Qt.UserRole + 24, "num_ratings")
         self.addRoleName(Qt.UserRole + 25, "user_rating")
+        self.addRoleName(Qt.UserRole + 26, "machine_compatibility")
 
         # List of filters for queries. The result is the union of the each list of results.
         self._filter = {}  # type: Dict[str, str]
@@ -82,32 +83,41 @@ class PackagesModel(ListModel):
                 package["author"]["author_id"] = ""
                 package["author"]["display_name"] = ""
 
+            machine_compatibility = []
+            try:
+                for compatibility in package['data']['materials'][0]['compatibility']: # I know, right...
+                    machine_compatibility.append(compatibility['machine_name'] + '\n')
+            except:
+                machine_compatibility.append("N/A")
+            machine_compatibility_result = "".join(machine_compatibility)
+
             items.append({
-                "id":                   package["package_id"],
-                "type":                 package["package_type"],
-                "name":                 package["display_name"],
-                "version":              package["package_version"],
-                "author_id":            package["author"]["author_id"],
-                "author_name":          package["author"]["display_name"],
-                "author_email":         package["author"]["email"] if "email" in package["author"] else None,
-                "description":          package["description"] if "description" in package else None,
-                "icon_url":             package["icon_url"] if "icon_url" in package else None,
-                "image_urls":           package["image_urls"] if "image_urls" in package else None,
-                "download_url":         package["download_url"] if "download_url" in package else None,
-                "last_updated":         package["last_updated"] if "last_updated" in package else None,
-                "is_bundled":           package["is_bundled"] if "is_bundled" in package else False,
-                "is_active":            package["is_active"] if "is_active" in package else False,
-                "is_installed":         package["is_installed"] if "is_installed" in package else False,
-                "has_configs":          has_configs,
-                "supported_configs":    configs_model,
-                "download_count":       package["download_count"] if "download_count" in package else 0,
-                "tags":                 package["tags"] if "tags" in package else [],
-                "links":                links_dict,
-                "website":              package["website"] if "website" in package else None,
-                "login_required":       "login-required" in package.get("tags", []),
-                "average_rating":       float(package.get("rating", {}).get("average", 0)),
-                "num_ratings":          package.get("rating", {}).get("count", 0),
-                "user_rating":          package.get("rating", {}).get("user_rating", 0)
+                "id":                       package["package_id"],
+                "type":                     package["package_type"],
+                "name":                     package["display_name"],
+                "version":                  package["package_version"],
+                "author_id":                package["author"]["author_id"],
+                "author_name":              package["author"]["display_name"],
+                "author_email":             package["author"]["email"] if "email" in package["author"] else None,
+                "description":              package["description"] if "description" in package else None,
+                "icon_url":                 package["icon_url"] if "icon_url" in package else None,
+                "image_urls":               package["image_urls"] if "image_urls" in package else None,
+                "download_url":             package["download_url"] if "download_url" in package else None,
+                "last_updated":             package["last_updated"] if "last_updated" in package else None,
+                "is_bundled":               package["is_bundled"] if "is_bundled" in package else False,
+                "is_active":                package["is_active"] if "is_active" in package else False,
+                "is_installed":             package["is_installed"] if "is_installed" in package else False,
+                "has_configs":              has_configs,
+                "supported_configs":        configs_model,
+                "download_count":           package["download_count"] if "download_count" in package else 0,
+                "tags":                     package["tags"] if "tags" in package else [],
+                "links":                    links_dict,
+                "website":                  package["website"] if "website" in package else None,
+                "login_required":           "login-required" in package.get("tags", []),
+                "average_rating":           float(package.get("rating", {}).get("average", 0)),
+                "num_ratings":              package.get("rating", {}).get("count", 0),
+                "user_rating":              package.get("rating", {}).get("user_rating", 0),
+                "machine_compatibility":    machine_compatibility_result
             })
 
         # Filter on all the key-word arguments.

@@ -36,6 +36,16 @@ Item
 
         Label
         {
+            height: contentHeight
+            text: model.machine_compatibility.toString()
+            wrapMode: Text.WordWrap
+            color: "red"
+            font: UM.Theme.getFont("medium_bold")
+            renderType: Text.NativeRendering
+        }
+
+        Label
+        {
             width: parent.width
             text: model.description
             maximumLineCount: 25
