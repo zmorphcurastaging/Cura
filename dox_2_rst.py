@@ -13,15 +13,16 @@ class Dox2Rst:
 
     def convert(self, file_path:str):
         contents, changed = "", False
-        with open(file_path, "r") as f:
+        with open(file_path, "r+") as f:
             contents = f.read()
             changed = True
             while changed:
                 contents, changed = self.replace_first_dox_comment(contents)
 
-        os.remove(file_path)
-        with open(file_path, "w+") as f:
+            f.seek(0)
+            f.truncate()
             f.write(contents)
+
 
     def replace_first_dox_comment(self, contents: str):
         match = self.REGEX.match(contents)
