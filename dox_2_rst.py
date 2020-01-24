@@ -3,7 +3,6 @@ import re
 class Dox2Rst:
 
     REGEX = re.compile(r"(?P<before>[\s\S]*\n)?(?P<dox>\s*##.*\n(?:\s*#.*)*\n)(?P<def>\s*def.*)(?P<after>[\s\S]*)")
-    #SUB_PATTERN = r"\g<before>\g<def>\g<dox>\g<after>"
 
     COMMENT_INDENT_PATTERN = re.compile(r"^\s*#", re.MULTILINE)
     COMMENT_INDENT_SUB = "  \g<0>"
@@ -42,8 +41,14 @@ class Dox2Rst:
         else:
             indent = indent.group()
 
+        # replace opening
         output = dox_block.replace("##", '"""')
         output = re.sub(self.DOX_CONTINUATION_PREFIX_PATTERN, indent, output)
+        # replace keyword escapes ie. \return -> :return
+        output = output.replace('\\', ":")
+
+        output = output.replace(":code", "")
+        output = output.replace(":endcode", "")
         # Add closing """
         output = "{before}\n{indent}\"\"\"\n{indent}".format(before=output, indent=indent)
         return output
