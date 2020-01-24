@@ -40,6 +40,9 @@ class Dox2Rst:
         else:
             return contents, False
 
+    PARAM_REGEX = re.compile(r"param: \w+")
+    PARAM_SUB = "\g<0>:"
+
     def convert_comment_block(self, dox_block: str):
         """
 
@@ -59,7 +62,8 @@ class Dox2Rst:
 
         output = output.replace(":code", "")
         output = output.replace(":endcode", "")
-        output = output.replace(":return", ":return:")
+        output = output.replace(":param \w", "")
+        output = re.sub(self.PARAM_REGEX, self.PARAM_SUB, output)
         # Add closing """
         output = "{before}{indent}\"\"\"\n".format(before=output, indent=indent)
         return output
