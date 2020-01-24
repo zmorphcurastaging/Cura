@@ -13,7 +13,7 @@ class Dox2Rst:
 
     def convert(self):
 
-        with open("plugins/CuraProfileWriter/CuraProfileWriter.py", "r") as f:
+        with open("plugins/CuraProfileWriter/CuraProfileWriter.py", "r+") as f:
             contents = f.read()
             match = self.REGEX.match(contents)
             if match is not None:
@@ -26,7 +26,9 @@ class Dox2Rst:
                     rst=comment_block,
                     after=match.group("after")
                 )
-                print(contents)
+                f.truncate()
+                f.seek(0)
+                f.write(contents)
             else:
                 print("not found")
 
@@ -49,8 +51,9 @@ class Dox2Rst:
 
         output = output.replace(":code", "")
         output = output.replace(":endcode", "")
+        output = output.replace(":return", ":return:")
         # Add closing """
-        output = "{before}\n{indent}\"\"\"\n{indent}".format(before=output, indent=indent)
+        output = "{before}\"\"\"\n{indent}".format(before=output, indent=indent)
         return output
 
     def add_indent(self, comment_block: str):
