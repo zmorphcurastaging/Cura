@@ -4314,6 +4314,17 @@
                     "settable_per_mesh": false,
                     "settable_per_extruder": true
                 },
+                "raft_angles":
+                {
+                    "label": "Raft Line Directions",
+                    "description": "Hi Koen! -- Custom setting for research purposes.",
+                    "type": "[int]",
+                    "default_value": "[ ]",
+                    "enabled": "resolveOrValue('adhesion_type') == 'raft'",
+                    "limit_to_extruder": "adhesion_extruder_nr",
+                    "settable_per_mesh": false,
+                    "settable_per_extruder": true
+                },
                 "support_brim_enable":
                 {
                     "label": "Enable Support Brim",
