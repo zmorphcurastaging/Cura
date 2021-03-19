@@ -237,5 +237,8 @@ if ApplicationMetadata.CuraDebugMode:
     ssl_conf.setPeerVerifyMode(QSslSocket.VerifyNone)
     QSslConfiguration.setDefaultConfiguration(ssl_conf)
 
+from PyQt5.QtCore import pyqt5_enable_new_onexit_scheme
+pyqt5_enable_new_onexit_scheme(False)
+
 app = CuraApplication()
 app.run()
