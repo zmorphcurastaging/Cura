@@ -103,7 +103,7 @@ class PyCharmRunEnv(VirtualRunEnv):
 
 class CuraConan(ConanFile):
     name = "Cura"
-    version = "4.10.0"
+    version = "Arachne"
     license = "LGPL-3.0"
     author = "Ultimaker B.V."
     url = "https://github.com/Ultimaker/cura"
@@ -158,7 +158,7 @@ class CuraConan(ConanFile):
 
     def layout(self):
         self.runenv_info.define("CURA_APP_DISPLAY_NAME", self.name)
-        self.runenv_info.define("CURA_VERSION", "master")
+        self.runenv_info.define("CURA_VERSION", "arachne")
         self.runenv_info.define("CURA_BUILD_TYPE", "Enterprise" if self.options.enterprise else "")
         staging = "-staging" if self.options.staging else ""
         self.runenv_info.define("CURA_CLOUD_API_ROOT", f"https://api{staging}.ultimaker.com")
@@ -199,7 +199,7 @@ class CuraConan(ConanFile):
         self.requires(f"pynest2d/4.10.0@ultimaker/testing")
         self.requires(f"Savitar/4.10.0@ultimaker/testing")
         self.requires(f"Uranium/4.10.0@ultimaker/testing")
-        self.requires(f"CuraEngine/4.10.0@ultimaker/testing")
+        self.requires(f"CuraEngine/Arachne@ultimaker/testing")
 
     def build(self):
         cmake = CMake(self)
