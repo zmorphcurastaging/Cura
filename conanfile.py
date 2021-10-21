@@ -89,7 +89,7 @@ class CuraConan(ConanFile):
 
     def layout(self):
         self.runenv_info.define("CURA_APP_DISPLAY_NAME", self.name)
-        self.runenv_info.define("CURA_VERSION", "master")
+        self.runenv_info.define("CURA_VERSION", self.version)
         self.runenv_info.define("CURA_BUILD_TYPE", "Enterprise" if self.options.enterprise else "")
         staging = "-staging" if self.options.staging else ""
         self.runenv_info.define("CURA_CLOUD_API_ROOT", f"https://api{staging}.ultimaker.com")
