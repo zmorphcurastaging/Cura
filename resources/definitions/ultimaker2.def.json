@@ -86,6 +86,21 @@
         },
         "machine_acceleration": {
             "default_value": 3000
+        },
+        "infill_before_walls": {
+            "value": "False"
+        },
+        "speed_equalize_flow_width_factor": {
+            "value": "0.5"
+        },
+        "retraction_combing": {
+            "value": "'no_outer_surfaces'"
+        },
+        "skin_monotonic" : {
+            "value": true
+        },
+        "top_bottom_pattern" : {
+            "value":  "'zigzag'"
         }
     }
 }
