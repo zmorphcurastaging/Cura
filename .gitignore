@@ -57,6 +57,9 @@ plugins/SettingsGuide2
 plugins/SVGToolpathReader
 plugins/X3GWriter
 
+# External whats_new resources
+resources/images/whats_new
+
 #Build stuff
 CMakeCache.txt
 CMakeFiles
