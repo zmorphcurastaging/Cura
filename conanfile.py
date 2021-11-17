@@ -102,16 +102,29 @@ class CuraConan(ConanFile):
         tc.variables["URANIUM_DIR"] = os.path.join(self.dependencies["uranium"].package_folder, "")
         tc.generate()
 
-        be = VirtualBuildEnv(self)  # Make sure we use our won Python
+        be = VirtualBuildEnv(self)  # Make sure we use our own Python
         be.generate()
 
+        # Create the Virtual environment
         vb = self.python_requires["VirtualEnvironmentBuildTool"].module.VirtualEnvironmentBuildTool(self)
         vb.configure(os.path.join(self.dependencies["Python"].package_folder, self.dependencies["Python"].cpp_info.bindirs[0], "python3"))
         # FIXME: create propper deps
         vb.generate(pip_deps = "numpy==1.20.2 scipy==1.6.2 shapely==1.7.1 appdirs==1.4.3 certifi==2019.11.28 cffi==1.14.1 chardet==3.0.4 cryptography==3.4.6 decorator==4.4.0 idna==2.8 importlib-metadata==3.7.2 netifaces==0.10.9 networkx==2.3 numpy-stl==2.10.1 packaging==18.0 pycollada==0.6 pycparser==2.19 pyparsing==2.4.2 PyQt5==5.15.4 pyserial==3.4 python-dateutil==2.8.0 python-utils==2.3.0 requests==2.22.0 sentry-sdk==0.13.5 six==1.12.0 trimesh==3.2.33 twisted==21.2.0 urllib3==1.25.8 zeroconf==0.31.0 keyring==23.0.1")
 
+        # create the pycharm run configurations
         pb = self.python_requires["PyCharmRunEnvironment"].module.PyCharmRunEnvironment(self)
         pb.generate(env)
+
+        # Install materials
+        materials_src = pathlib.Path(os.path.join(self.dependencies['fdm_materials'].package_folder, self.dependencies["fdm_materials"].cpp_info.resdirs[0]))
+        materials_dst = pathlib.Path(os.path.join(self.base_path, "resources", "materials"))
+        if os.path.exists(materials_dst):
+            os.remove(materials_dst)
+        try:
+            materials_dst.symlink_to(materials_src)
+        except OSError as e:
+            self.output.warn("Could not create symlink to fdm_materials copying instead")
+            shutil.copy(materials_src, materials_dst)
 
     def requirements(self):
         self.requires(f"Python/3.8.10@python/stable")
@@ -120,6 +133,7 @@ class CuraConan(ConanFile):
         self.requires(f"savitar/4.13.0-alpha+001@ultimaker/testing")
         self.requires(f"uranium/4.13.0-alpha+001@ultimaker/testing")
         self.requires(f"curaengine/4.13.0-alpha+001@ultimaker/testing")
+        self.requires(f"fdm_materials/4.13.0-alpha+001@ultimaker/testing")
 
     def build(self):
         cmake = CMake(self)
