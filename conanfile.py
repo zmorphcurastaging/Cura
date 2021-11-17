@@ -13,7 +13,7 @@ required_conan_version = ">=1.42"
 
 class CuraConan(ConanFile):
     name = "Cura"
-    version = "4.13.0-alpha+001"
+    version = "99.9.2-alpha+001"
     license = "LGPL-3.0"
     author = "Ultimaker B.V."
     url = "https://github.com/Ultimaker/cura"
