@@ -25,7 +25,8 @@ class CuraConan(ConanFile):
     default_user = "ultimaker"
     default_channel = "testing"
     exports = ["LICENSE*",
-               str(os.path.join(".conan_gen", "Cura.run.xml.jinja"))]
+               str(os.path.join(".conan_gen", "Cura.run.xml.jinja")),
+               str(os.path.join(".conan_gen", "CuraVersion.py"))]
     base_path = pathlib.Path(__file__).parent.absolute()
     python_requires = ["VirtualEnvironmentBuildTool/0.1@ultimaker/testing",
                       "PyCharmRunEnvironment/0.1@ultimaker/testing"]
@@ -116,15 +117,26 @@ class CuraConan(ConanFile):
         pb.generate(env)
 
         # Install materials
-        materials_src = pathlib.Path(os.path.join(self.dependencies['fdm_materials'].package_folder, self.dependencies["fdm_materials"].cpp_info.resdirs[0]))
-        materials_dst = pathlib.Path(os.path.join(self.base_path, "resources", "materials"))
+        materials_src = pathlib.Path(os.path.join(self.dependencies['fdm_materials'].package_folder, self.dependencies["fdm_materials"].cpp_info.resdirs[0], "fdm_materials"))
+        materials_dst = pathlib.Path(os.path.join(self.base_path, "resources", "materials", "fdm_materials"))
         if os.path.exists(materials_dst):
-            os.remove(materials_dst)
+            if materials_dst.is_symlink():
+                os.remove(materials_dst)
+            else:
+                materials_dst.rmdir()
         try:
             materials_dst.symlink_to(materials_src)
         except OSError as e:
             self.output.warn("Could not create symlink to fdm_materials copying instead")
             shutil.copy(materials_src, materials_dst)
+
+        # Install CuraVersion.py
+        curaversion_src = pathlib.Path(os.path.join(self.base_path, ".conan_gen", "CuraVersion.py"))
+        curaversion_dst = pathlib.Path(os.path.join(self.base_path, "cura", "CuraVersion.py"))
+
+        if curaversion_dst.exists():
+            os.remove(curaengine_dst)
+        shutil.copy(curaversion_src, curaversion_dst)
 
     def requirements(self):
         self.requires(f"Python/3.8.10@python/stable")
