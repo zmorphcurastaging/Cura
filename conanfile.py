@@ -13,7 +13,7 @@ required_conan_version = ">=1.42"
 
 class CuraConan(ConanFile):
     name = "Cura"
-    version = "4.13.0-alpha+001"
+    version = "4.13.0"
     license = "LGPL-3.0"
     author = "Ultimaker B.V."
     url = "https://github.com/Ultimaker/cura"
@@ -29,7 +29,9 @@ class CuraConan(ConanFile):
                str(os.path.join(".conan_gen", "CuraVersion.py"))]
     base_path = pathlib.Path(__file__).parent.absolute()
     python_requires = ["VirtualEnvironmentBuildTool/0.1@ultimaker/testing",
-                      "PyCharmRunEnvironment/0.1@ultimaker/testing"]
+                       "PyCharmRunEnvironment/0.1@ultimaker/testing",
+                       "UltimakerBase/0.1@ultimaker/testing"]
+    python_requires_extend = "UltimakerBase.UltimakerBase"
     pycharm_targets = [
         {
             "jinja_path": str(os.path.join(base_path, ".conan_gen", "Cura.run.xml.jinja")),
@@ -72,7 +74,7 @@ class CuraConan(ConanFile):
         v = tools.Version(self.version)
         env = Environment()
         env.define("CURA_APP_DISPLAY_NAME", self.name)
-        env.define("CURA_VERSION", f"{v.major}.{v.minor}")
+        env.define("CURA_VERSION", f"{self.version}")
         env.define("CURA_BUILD_TYPE", "Enterprise" if self.options.enterprise else "")
         staging = "-staging" if self.options.staging else ""
         env.define("CURA_CLOUD_API_ROOT", f"https://api{staging}.ultimaker.com")
