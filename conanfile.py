@@ -145,7 +145,7 @@ class CuraConan(ConanFile):
         self.requires(f"charon/4.13.0-alpha+001@ultimaker/testing")
         self.requires(f"pynest2d/4.13.0-alpha+001@ultimaker/testing")
         self.requires(f"savitar/4.13.0-alpha+001@ultimaker/testing")
-        self.requires(f"uranium/4.13.0-a+2df6f4@ultimaker/testing:")
+        self.requires(f"uranium/4.13.0-a+7bfcac@ultimaker/testing")
         self.requires(f"curaengine/4.13.0-alpha+001@ultimaker/testing")
         self.requires(f"fdm_materials/4.13.0-alpha+001@ultimaker/testing")
 
