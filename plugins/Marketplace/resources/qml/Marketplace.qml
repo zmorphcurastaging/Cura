@@ -16,7 +16,7 @@ Window
 
     signal searchStringChanged(string new_search)
 
-    minimumWidth: UM.Theme.getSize("modal_window_minimum").width
+    minimumWidth: 636
     minimumHeight: UM.Theme.getSize("modal_window_minimum").height
     width: minimumWidth
     height: minimumHeight
@@ -70,6 +70,11 @@ Window
                     color: UM.Theme.getColor("text")
                     text: content.item ? content.item.pageTitle: catalog.i18nc("@title", "Loading...")
                 }
+            }
+
+            MarketplaceBanner
+            {
+                Layout.fillWidth: true
             }
 
             // Search & Top-Level Tabs
