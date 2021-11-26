@@ -41,7 +41,8 @@ Rectangle
         }
     ]
 
-    Image //Separate column for icon on the left.
+    // Separate column for icon on the left.
+    Image
     {
         id: packageItem
         anchors
@@ -56,7 +57,8 @@ Rectangle
         source: packageData.iconUrl != "" ? packageData.iconUrl : "../images/placeholder.svg"
     }
 
-    RowLayout //Title row.
+    // Title row.
+    RowLayout
     {
         id: titleBar
         anchors
@@ -83,12 +85,20 @@ Rectangle
             Layout.preferredHeight: UM.Theme.getSize("card_tiny_icon").height
 
 
-            enabled: packageData.isVerified
-            visible: packageData.isVerified
+            enabled: packageData.isCheckedByUltimaker
+            visible: packageData.isCheckedByUltimaker
 
             Cura.ToolTip
             {
-                tooltipText: catalog.i18nc("@info", "Verified")
+                tooltipText:
+                {
+                    switch(packageData.packageType)
+                    {
+                        case "plugin": return catalog.i18nc("@info", "Ultimaker Verified Plug-in");
+                        case "material": return catalog.i18nc("@info", "Ultimaker Certified Material");
+                        default: return catalog.i18nc("@info", "Ultimaker Verified Package");
+                    }
+                }
                 visible: parent.hovered
                 targetPoint: Qt.point(0, Math.round(parent.y + parent.height / 2))
             }
@@ -102,7 +112,7 @@ Rectangle
                 {
                     anchors.fill: parent
                     color: UM.Theme.getColor("primary")
-                    source: UM.Theme.getIcon("CheckCircle")
+                    source: packageData.packageType == "plugin" ? UM.Theme.getIcon("CheckCircle") : UM.Theme.getIcon("Certified")
                 }
             }
 
@@ -250,7 +260,8 @@ Rectangle
         }
     }
 
-    RowLayout //Author and action buttons.
+    // Author and action buttons.
+    RowLayout
     {
         id: authorAndActionButton
         width: parent.width

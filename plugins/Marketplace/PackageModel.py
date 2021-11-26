@@ -27,9 +27,11 @@ class PackageModel(QObject):
         """
         super().__init__(parent)
         self._package_id = package_data.get("package_id", "UnknownPackageId")
+        self._package_type = package_data.get("package_type", "")
         self._icon_url = package_data.get("icon_url", "")
         self._display_name = package_data.get("display_name", catalog.i18nc("@label:property", "Unknown Package"))
-        self._is_verified = "verified" in package_data.get("tags", [])
+        tags = package_data.get("tags", [])
+        self._is_checked_by_ultimaker = (self._package_type == "plugin" and "verified" in tags) or (self._package_type == "material" and "certified" in tags)
         self._package_version = package_data.get("package_version", "")  # Display purpose, no need for 'UM.Version'.
         self._package_info_url = package_data.get("website", "")  # Not to be confused with 'download_url'.
         self._download_count = package_data.get("download_count", 0)
@@ -41,6 +43,8 @@ class PackageModel(QObject):
         author_data = package_data.get("author", {})
         self._author_name = author_data.get("display_name", catalog.i18nc("@label:property", "Unknown Author"))
         self._author_info_url = author_data.get("website", "")
+        if not self._icon_url or self._icon_url == "":
+            self._icon_url = author_data.get("icon_url", "")
 
         self._section_title = section_title
         # Note that there's a lot more info in the package_data than just these specified here.
@@ -48,6 +52,10 @@ class PackageModel(QObject):
     @pyqtProperty(str, constant = True)
     def packageId(self) -> str:
         return self._package_id
+
+    @pyqtProperty(str, constant = True)
+    def packageType(self) -> str:
+        return self._package_type
 
     @pyqtProperty(str, constant=True)
     def iconUrl(self):
@@ -57,9 +65,9 @@ class PackageModel(QObject):
     def displayName(self) -> str:
         return self._display_name
 
-    @pyqtProperty(bool, constant=True)
-    def isVerified(self):
-        return self._is_verified
+    @pyqtProperty(bool, constant = True)
+    def isCheckedByUltimaker(self):
+        return self._is_checked_by_ultimaker
 
     @pyqtProperty(str, constant=True)
     def packageVersion(self):
