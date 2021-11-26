@@ -9,6 +9,8 @@ import QtQuick 2.15
 
 Rectangle
 {
+    property alias bannerText: infoText.text
+    property alias iconSource: icon.source
 
     color: UM.Theme.getColor("primary")
     implicitHeight: infoText.lineCount * fontMetrics.height + 2 * UM.Theme.getSize("default_margin").height
