@@ -3,10 +3,10 @@
 
 from PyQt5.QtCore import pyqtProperty, QObject
 import re
-from PyQt5.QtCore import pyqtProperty, pyqtSignal, QObject
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 
-from UM.Logger import Logger
+from PyQt5.QtCore import pyqtProperty, pyqtSignal, QObject
+
 from UM.i18n import i18nCatalog  # To translate placeholder names if data is not present.
 catalog = i18nCatalog("cura")
 
@@ -51,8 +51,15 @@ class PackageModel(QObject):
         if not self._icon_url or self._icon_url == "":
             self._icon_url = author_data.get("icon_url", "")
 
+        self._can_update = False
         self._section_title = section_title
         # Note that there's a lot more info in the package_data than just these specified here.
+
+    def __eq__(self, other: Union[str, "PackageModel"]):
+        if isinstance(other, PackageModel):
+            return other._package_id == self._package_id
+        else:
+            return other == self._package_id
 
     def _format(self, text: str) -> str:
         """
@@ -158,4 +165,16 @@ class PackageModel(QObject):
 
     @pyqtProperty(str, notify = manageUpdateStateChanged)
     def manageUpdateState(self):
-        return "hidden"  # TODO: implement
+        if self._can_update:
+            return "primary"
+        return "hidden"
+
+    @property
+    def canUpdate(self):
+        return self._can_update
+
+    @canUpdate.setter
+    def canUpdate(self, value):
+        if value != self._can_update:
+            self._can_update = value
+            self.manageUpdateStateChanged.emit()
