@@ -9,16 +9,15 @@ import UM 1.4 as UM
 ListView
 {
     id: packages
+    width: parent.width
 
     property string pageTitle
-    width: parent.width
+    property var selectedPackage
 
     clip: true
 
     Component.onCompleted: model.updatePackages()
     Component.onDestruction: model.abortUpdating()
-
-    //ScrollBar.vertical.policy: ScrollBar.AlwaysOff
 
     spacing: UM.Theme.getSize("default_margin").height
 
@@ -62,9 +61,33 @@ ListView
         }
     }
 
-    delegate: PackageCard
+    delegate: MouseArea
     {
-        packageData: model.package
+        width: parent ? parent.width : 0
+        height: childrenRect.height
+
+        onClicked:
+        {
+            packages.selectedPackage = model.package;
+            contextStack.push(packageDetailsComponent);
+        }
+
+        PackageCard
+        {
+            packageData: model.package
+            width: parent.width - UM.Theme.getSize("default_margin").width - UM.Theme.getSize("narrow_margin").width
+        }
+    }
+
+    Component
+    {
+        id: packageDetailsComponent
+
+        PackageDetails
+        {
+            packageData: packages.selectedPackage
+            title: packages.pageTitle
+        }
     }
 
     //Wrapper item to add spacing between content and footer.
