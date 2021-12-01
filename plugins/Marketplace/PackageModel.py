@@ -61,6 +61,9 @@ class PackageModel(QObject):
         else:
             return other == self._package_id
 
+    def __repr__(self):
+        return f"<{self._package_id} : {self._package_version} : {self._section_title}>"
+
     def _format(self, text: str) -> str:
         """
         Formats a user-readable block of text for display.
