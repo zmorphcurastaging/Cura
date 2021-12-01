@@ -302,7 +302,6 @@ Rectangle
                         width: UM.Theme.getSize("card_tiny_icon").width
                         height: UM.Theme.getSize("card_tiny_icon").height
 
-                        visible: packageData.installationStatus !== "bundled" //Don't show download count for packages that are bundled. It'll usually be 0.
                         source: UM.Theme.getIcon("Download")
                         color: UM.Theme.getColor("text")
                     }
@@ -311,7 +310,6 @@ Rectangle
                     {
                         anchors.verticalCenter: downloadsIcon.verticalCenter
 
-                        visible: packageData.installationStatus !== "bundled" //Don't show download count for packages that are bundled. It'll usually be 0.
                         color: UM.Theme.getColor("text")
                         font: UM.Theme.getFont("default")
                         text: packageData.downloadCount
@@ -363,6 +361,7 @@ Rectangle
                         secondaryText: catalog.i18nc("@button", "Disable")
                         busySecondaryText: catalog.i18nc("@button", "disabling...")
                         mainState: packageData.manageEnableState
+                        onClicked: print("Enabling")
                     }
 
                     ManageButton
@@ -374,6 +373,7 @@ Rectangle
                         secondaryText: catalog.i18nc("@button", "Uninstall")
                         busySecondaryText: catalog.i18nc("@button", "uninstalling...")
                         mainState: packageData.manageInstallState
+                        onClicked: print("Installing")
                     }
 
                     ManageButton
@@ -383,6 +383,7 @@ Rectangle
                         primaryText: catalog.i18nc("@button", "Update")
                         busyPrimaryText: catalog.i18nc("@button", "updating...")
                         mainState: packageData.manageUpdateState
+                        onClicked: print("updating")
                     }
                 }
             }

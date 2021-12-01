@@ -17,16 +17,12 @@ catalog = i18nCatalog("cura")
 class PackageModel(QObject):
     """
     Represents a package, containing all the relevant information to be displayed about a package.
-
-    Effectively this behaves like a glorified named tuple, but as a QObject so that its properties can be obtained from
-    QML. The model can also be constructed directly from a response received by the API.
     """
 
-    def __init__(self, package_data: Dict[str, Any], installation_status: str, section_title: Optional[str] = None, parent: Optional[QObject] = None) -> None:
+    def __init__(self, package_data: Dict[str, Any], section_title: Optional[str] = None, parent: Optional[QObject] = None) -> None:
         """
         Constructs a new model for a single package.
         :param package_data: The data received from the Marketplace API about the package to create.
-        :param installation_status: Whether the package is `not_installed`, `installed` or `bundled`.
         :param section_title: If the packages are to be categorized per section provide the section_title
         :param parent: The parent QML object that controls the lifetime of this model (normally a PackageList).
         """
@@ -65,7 +61,6 @@ class PackageModel(QObject):
             self._icon_url = author_data.get("icon_url", "")
 
         self._can_update = False
-        self._installation_status = installation_status
         self._section_title = section_title
         # Note that there's a lot more info in the package_data than just these specified here.
 
@@ -232,10 +227,6 @@ class PackageModel(QObject):
         return self._author_info_url
 
     @pyqtProperty(str, constant = True)
-    def installationStatus(self) -> str:
-        return self._installation_status
-
-    @pyqtProperty(str, constant = True)
     def sectionTitle(self) -> Optional[str]:
         return self._section_title
 
@@ -266,3 +257,58 @@ class PackageModel(QObject):
     @pyqtProperty(bool, constant = True)
     def isCompatibleAirManager(self) -> bool:
         return self._is_compatible_air_manager
+
+    isInstalledChanged = pyqtSignal()
+
+    @pyqtProperty(bool, notify = isInstalledChanged)
+    def isInstalled(self):
+        return self._is_installed
+
+    isEnabledChanged = pyqtSignal()
+
+    @pyqtProperty(bool, notify = isEnabledChanged)
+    def isEnabled(self):
+        return self._is_active
+
+    manageEnableStateChanged = pyqtSignal()
+
+    @pyqtProperty(str, notify = manageEnableStateChanged)
+    def manageEnableState(self):
+        # TODO: Handle manual installed packages
+        if self._is_installed:
+            if self._is_active:
+                return "secondary"
+            else:
+                return "primary"
+        else:
+            return "hidden"
+
+    manageInstallStateChanged = pyqtSignal()
+
+    @pyqtProperty(str, notify = manageInstallStateChanged)
+    def manageInstallState(self):
+        if self._is_installed:
+            if self._is_bundled:
+                return "hidden"
+            else:
+                return "secondary"
+        else:
+            return "primary"
+
+    manageUpdateStateChanged = pyqtSignal()
+
+    @pyqtProperty(str, notify = manageUpdateStateChanged)
+    def manageUpdateState(self):
+        if self._can_update:
+            return "primary"
+        return "hidden"
+
+    @property
+    def canUpdate(self):
+        return self._can_update
+
+    @canUpdate.setter
+    def canUpdate(self, value):
+        if value != self._can_update:
+            self._can_update = value
+            self.manageUpdateStateChanged.emit()
