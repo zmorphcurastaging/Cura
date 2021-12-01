@@ -563,7 +563,8 @@
         "button_lining": [0, 0],
 
         "action_button": [15.0, 2.5],
-        "action_button_icon": [1.0, 1.0],
+        "action_button_icon": [1.5, 1.5],
+        "action_button_icon_small": [1.0, 1.0],
         "action_button_radius": [0.15, 0.15],
         "dialog_primary_button_padding": [3.0, 0],
 
@@ -683,6 +684,8 @@
         "table_row": [2.0, 2.0],
 
         "welcome_wizard_content_image_big": [18, 15],
-        "welcome_wizard_cloud_content_image": [4, 4]
+        "welcome_wizard_cloud_content_image": [4, 4],
+
+        "banner_icon_size": [2.0, 2.0]
     }
 }

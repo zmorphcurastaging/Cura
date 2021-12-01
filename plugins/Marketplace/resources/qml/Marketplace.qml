@@ -21,8 +21,14 @@ Window
     width: minimumWidth
     height: minimumHeight
 
-    // Set and unset the content. No need to keep things in memory if it's not visible.
-    onVisibleChanged: content.source = visible ? "Plugins.qml" : ""
+    onVisibleChanged:
+    {
+        pageSelectionTabBar.currentIndex = 0; //Go back to the initial tab.
+        while(contextStack.depth > 1)
+        {
+            contextStack.pop(); //Do NOT use the StackView.Immediate transition here, since it causes the window to stay empty. Seemingly a Qt bug: https://bugreports.qt.io/browse/QTBUG-60670?
+        }
+    }
 
     Connections
     {
@@ -80,6 +86,15 @@ Window
                     }
                 }
 
+                OnboardBanner
+                {
+                    visible: content.item && content.item.bannerVisible
+                    text: content.item && content.item.bannerText
+                    icon: content.item && content.item.bannerIcon
+                    onRemove: content.item && content.item.onRemoveBanner
+                    readMoreUrl: content.item && content.item.bannerReadMoreUrl
+                }
+
                 // Search & Top-Level Tabs
                 Item
                 {
@@ -111,38 +126,38 @@ Window
                         TabBar
                         {
                             id: pageSelectionTabBar
-                            anchors.right: parent.right
+                            Layout.alignment: Qt.AlignRight
                             height: UM.Theme.getSize("button_icon").height
                             spacing: 0
                             background: Rectangle { color: "transparent" }
+
+                            onCurrentIndexChanged:
+                            {
+                                searchBar.text = "";
+                                searchBar.visible = currentItem.hasSearch;
+                                content.source = currentItem.sourcePage;
+                            }
 
                             PackageTypeTab
                             {
                                 id: pluginTabText
                                 width: implicitWidth
                                 text: catalog.i18nc("@button", "Plugins")
-                                onClicked:
-                                {
-                                    searchBar.text = ""
-                                    searchBar.visible = true
-                                    content.source = "Plugins.qml"
-                                }
+                                property string sourcePage: "Plugins.qml"
+                                property bool hasSearch: true
                             }
                             PackageTypeTab
                             {
                                 id: materialsTabText
                                 width: implicitWidth
                                 text: catalog.i18nc("@button", "Materials")
-                                onClicked:
-                                {
-                                    searchBar.text = ""
-                                    searchBar.visible = true
-                                    content.source = "Materials.qml"
-                                }
+                                property string sourcePage: "Materials.qml"
+                                property bool hasSearch: true
                             }
                             ManagePackagesButton
                             {
-                                onClicked: content.source = "ManagedPackages.qml"
+                                property string sourcePage: "ManagedPackages.qml"
+                                property bool hasSearch: false
                             }
                         }
 
@@ -159,6 +174,25 @@ Window
                             font: materialsTabText.font
                         }
                     }
+                }
+
+                FontMetrics
+                {
+                    id: fontMetrics
+                    font: UM.Theme.getFont("default")
+                }
+
+                Cura.TertiaryButton
+                {
+                    text: catalog.i18nc("@info", "Search in the browser")
+                    iconSource: UM.Theme.getIcon("LinkExternal")
+                    visible: pageSelectionTabBar.currentItem.hasSearch
+                    isIconOnRightSide: true
+                    height: fontMetrics.height
+                    textFont: fontMetrics.font
+                    textColor: UM.Theme.getColor("text")
+
+                    onClicked: content.item && Qt.openUrlExternally(content.item.searchInBrowserUrl)
                 }
 
                 // Page contents.
