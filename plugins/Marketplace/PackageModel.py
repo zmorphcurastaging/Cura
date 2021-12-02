@@ -312,3 +312,13 @@ class PackageModel(QObject):
         if value != self._can_update:
             self._can_update = value
             self.manageUpdateStateChanged.emit()
+
+    installPackageTriggered = pyqtSignal(str)
+
+    uninstallPackageTriggered = pyqtSignal(str)
+
+    updatePackageTriggered = pyqtSignal(str)
+
+    enablePackageTriggered = pyqtSignal(str)
+
+    disablePackageTriggered = pyqtSignal(str)

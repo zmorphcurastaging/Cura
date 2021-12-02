@@ -361,7 +361,21 @@ Rectangle
                         secondaryText: catalog.i18nc("@button", "Disable")
                         busySecondaryText: catalog.i18nc("@button", "disabling...")
                         mainState: packageData.manageEnableState
-                        onClicked: print("Enabling")
+                    }
+                    Connections
+                    {
+                        target: enableManageButton
+                        function onClicked(primary_action)
+                        {
+                            if (primary_action)
+                            {
+                                packageData.enablePackageTriggered(packageData.packageId)
+                            }
+                            else
+                            {
+                                packageData.disablePackageTriggered(packageData.packageId)
+                            }
+                        }
                     }
 
                     ManageButton
@@ -373,7 +387,21 @@ Rectangle
                         secondaryText: catalog.i18nc("@button", "Uninstall")
                         busySecondaryText: catalog.i18nc("@button", "uninstalling...")
                         mainState: packageData.manageInstallState
-                        onClicked: print("Installing")
+                    }
+                    Connections
+                    {
+                        target: installManageButton
+                        function onClicked(primary_action)
+                        {
+                            if (primary_action)
+                            {
+                                packageData.installPackageTriggered(packageData.packageId)
+                            }
+                            else
+                            {
+                                packageData.uninstallPackageTriggered(packageData.packageId)
+                            }
+                        }
                     }
 
                     ManageButton
@@ -383,7 +411,14 @@ Rectangle
                         primaryText: catalog.i18nc("@button", "Update")
                         busyPrimaryText: catalog.i18nc("@button", "updating...")
                         mainState: packageData.manageUpdateState
-                        onClicked: print("updating")
+                    }
+                    Connections
+                    {
+                        target: updateManageButton
+                        function onClicked(primary_action)
+                        {
+                            packageData.updatePackageTriggered(packageData.packageId)
+                        }
                     }
                 }
             }
