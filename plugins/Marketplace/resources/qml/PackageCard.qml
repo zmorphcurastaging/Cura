@@ -361,6 +361,7 @@ Rectangle
                         secondaryText: catalog.i18nc("@button", "Disable")
                         busySecondaryText: catalog.i18nc("@button", "disabling...")
                         mainState: packageData.manageEnableState
+                        enabled: !(installManageButton.busy || updateManageButton.busy)
                     }
                     Connections
                     {
@@ -387,6 +388,7 @@ Rectangle
                         secondaryText: catalog.i18nc("@button", "Uninstall")
                         busySecondaryText: catalog.i18nc("@button", "uninstalling...")
                         mainState: packageData.manageInstallState
+                        enabled: !(enableManageButton.busy || updateManageButton.busy)
                     }
                     Connections
                     {
@@ -411,6 +413,7 @@ Rectangle
                         primaryText: catalog.i18nc("@button", "Update")
                         busyPrimaryText: catalog.i18nc("@button", "updating...")
                         mainState: packageData.manageUpdateState
+                        enabled: !(installManageButton.busy || enableManageButton.busy)
                     }
                     Connections
                     {
