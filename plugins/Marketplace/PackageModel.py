@@ -42,7 +42,7 @@ class PackageModel(QObject):
         self._description = package_data.get("description", "")
         self._formatted_description = self._format(self._description)
 
-        self._download_url = package_data.get("download_url", "")
+        self.download_url = package_data.get("download_url", "")
         self._release_notes = package_data.get("release_notes", "")  # Not used yet, propose to add to description?
 
         subdata = package_data.get("data", {})
@@ -61,6 +61,8 @@ class PackageModel(QObject):
             self._icon_url = author_data.get("icon_url", "")
 
         self._can_update = False
+        self._is_installing = False
+        self._is_updating = False
         self._section_title = section_title
         # Note that there's a lot more info in the package_data than just these specified here.
 
@@ -258,6 +260,28 @@ class PackageModel(QObject):
     def isCompatibleAirManager(self) -> bool:
         return self._is_compatible_air_manager
 
+    isInstallingChanged = pyqtSignal()
+
+    def setIsInstalling(self, value: bool) -> None:
+        if value != self._is_installing:
+            self._is_installing = value
+            self.isInstallingChanged.emit()
+
+    @pyqtProperty(bool, fset = setIsInstalling, notify = isInstallingChanged)
+    def isInstalling(self) -> bool:
+        return self._is_installing
+
+    isUpdatingChanged = pyqtSignal()
+
+    def setIsUpdating(self, value: bool) -> None:
+        if value != self._is_updating:
+            self._is_updating = value
+            self.isUpdatingChanged.emit()
+
+    @pyqtProperty(bool, fset = setIsUpdating, notify = isUpdatingChanged)
+    def isUpdating(self) -> bool:
+        return self._is_updating
+
     isInstalledChanged = pyqtSignal()
 
     @pyqtProperty(bool, notify = isInstalledChanged)
@@ -285,8 +309,13 @@ class PackageModel(QObject):
 
     manageInstallStateChanged = pyqtSignal()
 
+    def setManageInstallState(self, value: bool) -> None:
+        if value != self._is_installed:
+            self._is_installed = value
+            self.manageInstallStateChanged.emit()
+
     @pyqtProperty(str, notify = manageInstallStateChanged)
-    def manageInstallState(self):
+    def manageInstallState(self) -> str:
         if self._is_installed:
             if self._is_bundled:
                 return "hidden"

@@ -388,6 +388,7 @@ Rectangle
                         secondaryText: catalog.i18nc("@button", "Uninstall")
                         busySecondaryText: catalog.i18nc("@button", "uninstalling...")
                         mainState: packageData.manageInstallState
+                        busy: packageData.isInstalling
                         enabled: !(enableManageButton.busy || updateManageButton.busy)
                     }
                     Connections
@@ -395,6 +396,7 @@ Rectangle
                         target: installManageButton
                         function onClicked(primary_action)
                         {
+                            packageData.isInstalling = true
                             if (primary_action)
                             {
                                 packageData.installPackageTriggered(packageData.packageId)
@@ -413,6 +415,7 @@ Rectangle
                         primaryText: catalog.i18nc("@button", "Update")
                         busyPrimaryText: catalog.i18nc("@button", "updating...")
                         mainState: packageData.manageUpdateState
+                        busy: packageData.isUpdating
                         enabled: !(installManageButton.busy || enableManageButton.busy)
                     }
                     Connections
@@ -420,6 +423,7 @@ Rectangle
                         target: updateManageButton
                         function onClicked(primary_action)
                         {
+                            packageData.isUpdating = true
                             packageData.updatePackageTriggered(packageData.packageId)
                         }
                     }
