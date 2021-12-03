@@ -68,7 +68,7 @@ class PackageModel(QObject):
 
     def __eq__(self, other: Union[str, "PackageModel"]):
         if isinstance(other, PackageModel):
-            return other._package_id == self._package_id
+            return other == self
         else:
             return other == self._package_id
 
