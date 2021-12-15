@@ -13,7 +13,7 @@ required_conan_version = ">=1.42"
 
 class CuraConan(ConanFile):
     name = "Cura"
-    version = "4.13.0"
+    version = "5.0.0"
     license = "LGPL-3.0"
     author = "Ultimaker B.V."
     url = "https://github.com/Ultimaker/cura"
@@ -142,12 +142,12 @@ class CuraConan(ConanFile):
 
     def requirements(self):
         self.requires(f"Python/3.8.10@python/stable")
-        self.requires(f"charon/4.13.0-alpha+001@ultimaker/testing")
-        self.requires(f"pynest2d/4.13.0-alpha+001@ultimaker/testing")
-        self.requires(f"savitar/4.13.0-alpha+001@ultimaker/testing")
-        self.requires(f"uranium/4.13.0-a+7bfcac@ultimaker/testing")
-        self.requires(f"curaengine/4.13.0-alpha+001@ultimaker/testing")
-        self.requires(f"fdm_materials/4.13.0-alpha+001@ultimaker/testing")
+        self.requires(f"charon/5.0.0-a@ultimaker/testing")
+        self.requires(f"pynest2d/5.0.0-a@ultimaker/testing")
+        self.requires(f"savitar/5.0.0-a@ultimaker/testing")
+        self.requires(f"uranium/5.0.0-a@ultimaker/testing")
+        self.requires(f"curaengine/5.0.0-a@ultimaker/testing")
+        self.requires(f"fdm_materials/5.0.0-a@ultimaker/testing")
 
     def build(self):
         cmake = CMake(self)
