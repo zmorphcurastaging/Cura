@@ -142,12 +142,12 @@ class CuraConan(ConanFile):
 
     def requirements(self):
         self.requires(f"Python/3.8.10@python/stable")
-        self.requires(f"charon/5.0.0-a@ultimaker/testing")
-        self.requires(f"pynest2d/5.0.0-a@ultimaker/testing")
-        self.requires(f"savitar/5.0.0-a@ultimaker/testing")
-        self.requires(f"uranium/5.0.0-a@ultimaker/testing")
-        self.requires(f"curaengine/5.0.0-a@ultimaker/testing")
-        self.requires(f"fdm_materials/5.0.0-a@ultimaker/testing")
+        self.requires(f"charon/5.0.0@ultimaker/testing")
+        self.requires(f"pynest2d/5.0.0@ultimaker/testing")
+        self.requires(f"savitar/5.0.0@ultimaker/testing")
+        self.requires(f"uranium/5.0.0@ultimaker/testing")
+        self.requires(f"curaengine/5.0.0@ultimaker/testing")
+        self.requires(f"fdm_materials/5.0.0@ultimaker/testing")
 
     def build(self):
         cmake = CMake(self)
