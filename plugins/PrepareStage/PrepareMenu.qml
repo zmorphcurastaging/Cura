@@ -203,7 +203,7 @@ Item
                 border.width: UM.Theme.getSize("default_lining").width
 
                 radius: UM.Theme.getSize("default_radius").width
-                color: openFileButton.hovered ? UM.Theme.getColor("action_button_hovered") : UM.Theme.getColor("action_button")
+                color: openFileButton.hovered ? UM.Theme.getColor("action_button_hovered") : UM.Theme.getColor("zmorph_yellow")
             }
         }
     }
