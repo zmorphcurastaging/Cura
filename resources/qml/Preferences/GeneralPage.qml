@@ -221,48 +221,6 @@ UM.PreferencesPage
                     text: UM.Preferences.getValue("cura/currency")
                     onTextChanged: UM.Preferences.setValue("cura/currency", text)
                 }
-
-                Label
-                {
-                    id: themeLabel
-                    text: catalog.i18nc("@label","Theme:")
-                }
-
-                ListModel
-                {
-                    id: themeList
-
-                    Component.onCompleted: {
-                        var themes = UM.Theme.getThemes()
-                        for (var i = 0; i < themes.length; i++)
-                        {
-                            append({ text: themes[i].name.toString(), code: themes[i].id.toString() });
-                        }
-                    }
-                }
-
-                NewControls.ComboBox
-                {
-                    id: themeComboBox
-
-                    model: themeList
-                    textRole: "text"
-                    Layout.fillWidth: true
-
-                    currentIndex:
-                    {
-                        var code = UM.Preferences.getValue("general/theme");
-                        for(var i = 0; i < themeList.count; ++i)
-                        {
-                            if(model.get(i).code == code)
-                            {
-                                return i
-                            }
-                        }
-                        return 0;
-                    }
-                    onActivated: UM.Preferences.setValue("general/theme", model.get(index).code)
-                }
             }
 
             Label
