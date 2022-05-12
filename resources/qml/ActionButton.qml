@@ -26,7 +26,7 @@ Button
     property color textColor: UM.Theme.getColor("button_text")
     property color textHoverColor: textColor
     property color textDisabledColor: disabledColor
-    property color outlineColor: color
+    property color outlineColor: UM.THeme.getColor("primary_outline")
     property color outlineHoverColor: outlineColor
     property color outlineDisabledColor: disabledColor
     property alias busy: busyIndicator.visible
