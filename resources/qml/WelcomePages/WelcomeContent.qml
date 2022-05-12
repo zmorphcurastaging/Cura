@@ -53,8 +53,8 @@ Item
             id: titleLabel
             anchors.horizontalCenter: parent.horizontalCenter
             horizontalAlignment: Text.AlignHCenter
-            text: catalog.i18nc("@label", "Welcome to Ultimaker Cura")
-            color: UM.Theme.getColor("primary_button")
+            text: catalog.i18nc("@label", "Welcome to Zmorph Voxelizer")
+            color: UM.Theme.getColor("primary")
             font: UM.Theme.getFont("huge_bold")
             renderType: Text.NativeRendering
         }
