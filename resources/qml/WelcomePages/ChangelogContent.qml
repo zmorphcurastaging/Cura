@@ -22,7 +22,7 @@ Item
         anchors.horizontalCenter: parent.horizontalCenter
         horizontalAlignment: Text.AlignHCenter
         text: catalog.i18nc("@label", "Release Notes")
-        color: UM.Theme.getColor("primary_button")
+        color: UM.Theme.getColor("primary")
         font: UM.Theme.getFont("huge")
         renderType: Text.NativeRendering
     }
