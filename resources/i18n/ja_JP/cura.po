@@ -412,13 +412,13 @@ msgstr "Curaを開始できません"
 #: /home/clamboo/Desktop/Cura/cura/CrashHandler.py:113
 msgctxt "@label crash message"
 msgid ""
-"<p><b>Oops, Ultimaker Cura has encountered something that doesn't seem right.</p></b>\n"
+"<p><b>Oops, Zmorph Divid has encountered something that doesn't seem right.</p></b>\n"
 "                    <p>We encountered an unrecoverable error during start up. It was possibly caused by some incorrect configuration files. We suggest to backup and reset your configuration.</p>\n"
 "                    <p>Backups can be found in the configuration folder.</p>\n"
 "                    <p>Please send us this Crash Report to fix the problem.</p>\n"
 "                "
 msgstr ""
-"<p><b>申し訳ありません。Ultimaker Cura で何らかの不具合が生じています。</p></b>\n"
+"<p><b>申し訳ありません。Zmorph Divid で何らかの不具合が生じています。</p></b>\n"
 "                    <p>開始時に回復不能のエラーが発生しました。不適切なファイル設定が原因の可能性があります。バックアップを実行してからリセットしてください。</p>\n"
 "                    <p>バックアップは、設定フォルダに保存されます。</p>\n"
 "                    <p>問題解決のために、このクラッシュ報告をお送りください。</p>\n"
@@ -973,8 +973,8 @@ msgstr "プロジェクトファイル<filename>{0}</filename>は破損してい
 #: /home/clamboo/Desktop/Cura/plugins/3MFReader/ThreeMFWorkspaceReader.py:703
 #, python-brace-format
 msgctxt "@info:error Don't translate the XML tag <filename>!"
-msgid "Project file <filename>{0}</filename> is made using profiles that are unknown to this version of Ultimaker Cura."
-msgstr "プロジェクトファイル<filename>{0}</filename>はこのバージョンのUltimaker Curaでは認識できないプロファイルを使用して作成されています。"
+msgid "Project file <filename>{0}</filename> is made using profiles that are unknown to this version of Zmorph Divid."
+msgstr "プロジェクトファイル<filename>{0}</filename>はこのバージョンのZmorph Dividでは認識できないプロファイルを使用して作成されています。"
 
 #: /home/clamboo/Desktop/Cura/plugins/3MFReader/__init__.py:27 /home/clamboo/Desktop/Cura/plugins/3MFReader/__init__.py:33
 msgctxt "@item:inlistbox"
@@ -1034,8 +1034,8 @@ msgstr "バグを報告"
 
 #: /home/clamboo/Desktop/Cura/plugins/CuraEngineBackend/CuraEngineBackend.py:168
 msgctxt "@message:description"
-msgid "Report a bug on Ultimaker Cura's issue tracker."
-msgstr "Ultimaker Curaの問題追跡ツールでバグを報告してください。"
+msgid "Report a bug on Zmorph Divid's issue tracker."
+msgstr "Zmorph Dividの問題追跡ツールでバグを報告してください。"
 
 #: /home/clamboo/Desktop/Cura/plugins/CuraEngineBackend/CuraEngineBackend.py:395
 msgctxt "@info:status"
@@ -2378,8 +2378,8 @@ msgstr "匿名データの収集に関する詳細"
 
 #: /home/clamboo/Desktop/Cura/plugins/SliceInfoPlugin/MoreInfoWindow.qml:74
 msgctxt "@text:window"
-msgid "Ultimaker Cura collects anonymous data in order to improve the print quality and user experience. Below is an example of all the data that is shared:"
-msgstr "Ultimaker Cura は、印刷品質とユーザーエクスペリエンスを向上させるために匿名データを収集します。以下は、共有されるすべてのデータの例です："
+msgid "Zmorph Divid collects anonymous data in order to improve the print quality and user experience. Below is an example of all the data that is shared:"
+msgstr "Zmorph Divid は、印刷品質とユーザーエクスペリエンスを向上させるために匿名データを収集します。以下は、共有されるすべてのデータの例です："
 
 #: /home/clamboo/Desktop/Cura/plugins/SliceInfoPlugin/MoreInfoWindow.qml:110
 msgctxt "@text:window"
@@ -2573,8 +2573,8 @@ msgstr "電子メール"
 
 #: /home/clamboo/Desktop/Cura/plugins/Toolbox/resources/qml/pages/WelcomePage.qml:22
 msgctxt "@description"
-msgid "Please sign in to get verified plugins and materials for Ultimaker Cura Enterprise"
-msgstr "検証済みのUltimaker Cura Enterprise用プラグインおよび材料を入手するにはサインインしてください"
+msgid "Please sign in to get verified plugins and materials for Zmorph Divid Enterprise"
+msgstr "検証済みのZmorph Divid Enterprise用プラグインおよび材料を入手するにはサインインしてください"
 
 #: /home/clamboo/Desktop/Cura/plugins/Toolbox/resources/qml/pages/ToolboxDetailPage.qml:89
 msgctxt "@label"
@@ -2799,8 +2799,8 @@ msgstr "キューをリモートで管理するには、プリンターのファ
 
 #: /home/clamboo/Desktop/Cura/plugins/UM3NetworkPrinting/resources/qml/MonitorPrinterCard.qml:288
 msgctxt "@info"
-msgid "Webcam feeds for cloud printers cannot be viewed from Ultimaker Cura. Click \"Manage printer\" to visit Ultimaker Digital Factory and view this webcam."
-msgstr "クラウドプリンターのウェブカムフィードをUltimaker Curaから見ることができません。「プリンター管理」をクリックして、Ultimaker Digital Factoryにアクセスし、このウェブカムを見ます。"
+msgid "Webcam feeds for cloud printers cannot be viewed from Zmorph Divid. Click \"Manage printer\" to visit Ultimaker Digital Factory and view this webcam."
+msgstr "クラウドプリンターのウェブカムフィードをZmorph Dividから見ることができません。「プリンター管理」をクリックして、Ultimaker Digital Factoryにアクセスし、このウェブカムを見ます。"
 
 #: /home/clamboo/Desktop/Cura/plugins/UM3NetworkPrinting/resources/qml/MonitorPrinterCard.qml:348
 msgctxt "@label:status"
@@ -3440,15 +3440,15 @@ msgstr "拒否して閉じる"
 
 #: /home/clamboo/Desktop/Cura/resources/qml/WelcomePages/WelcomeContent.qml:56
 msgctxt "@label"
-msgid "Welcome to Ultimaker Cura"
-msgstr "Ultimaker Cura にようこそ"
+msgid "Welcome to Zmorph Divid"
+msgstr "Zmorph Divid にようこそ"
 
 #: /home/clamboo/Desktop/Cura/resources/qml/WelcomePages/WelcomeContent.qml:68
 msgctxt "@text"
-msgid "Please follow these steps to set up Ultimaker Cura. This will only take a few moments."
+msgid "Please follow these steps to set up Zmorph Divid. This will only take a few moments."
 msgstr ""
 "以下の手順で\n"
-"Ultimaker Cura を設定してください。数秒で完了します。"
+"Zmorph Divid を設定してください。数秒で完了します。"
 
 #: /home/clamboo/Desktop/Cura/resources/qml/WelcomePages/WelcomeContent.qml:86
 msgctxt "@button"
@@ -3532,13 +3532,13 @@ msgstr "トラブルシューティング"
 
 #: /home/clamboo/Desktop/Cura/resources/qml/WelcomePages/DataCollectionsContent.qml:24
 msgctxt "@label"
-msgid "Help us to improve Ultimaker Cura"
-msgstr "Ultimaker Cura の改善にご協力ください"
+msgid "Help us to improve Zmorph Divid"
+msgstr "Zmorph Divid の改善にご協力ください"
 
 #: /home/clamboo/Desktop/Cura/resources/qml/WelcomePages/DataCollectionsContent.qml:57
 msgctxt "@text"
-msgid "Ultimaker Cura collects anonymous data to improve print quality and user experience, including:"
-msgstr "Ultimaker Cura は、印刷品質とユーザーエクスペリエンスを向上させるために以下の匿名データを収集します:"
+msgid "Zmorph Divid collects anonymous data to improve print quality and user experience, including:"
+msgstr "Zmorph Divid は、印刷品質とユーザーエクスペリエンスを向上させるために以下の匿名データを収集します:"
 
 #: /home/clamboo/Desktop/Cura/resources/qml/WelcomePages/DataCollectionsContent.qml:71
 msgctxt "@text"
@@ -3562,8 +3562,8 @@ msgstr "プリント設定"
 
 #: /home/clamboo/Desktop/Cura/resources/qml/WelcomePages/DataCollectionsContent.qml:102
 msgctxt "@text"
-msgid "Data collected by Ultimaker Cura will not contain any personal information."
-msgstr "Ultimaker Cura が収集したデータには個人データは含まれません。"
+msgid "Data collected by Zmorph Divid will not contain any personal information."
+msgstr "Zmorph Divid が収集したデータには個人データは含まれません。"
 
 #: /home/clamboo/Desktop/Cura/resources/qml/WelcomePages/DataCollectionsContent.qml:103
 msgctxt "@text"
@@ -5141,8 +5141,8 @@ msgstr "プリントジョブをモニタリングしてプリント履歴から
 
 #: /home/clamboo/Desktop/Cura/resources/qml/ApplicationSwitcher/ApplicationSwitcherPopup.qml:55
 msgctxt "@tooltip:button"
-msgid "Extend Ultimaker Cura with plugins and material profiles."
-msgstr "Ultimaker Curaをプラグインと材料プロファイルで拡張します。"
+msgid "Extend Zmorph Divid with plugins and material profiles."
+msgstr "Zmorph Dividをプラグインと材料プロファイルで拡張します。"
 
 #: /home/clamboo/Desktop/Cura/resources/qml/ApplicationSwitcher/ApplicationSwitcherPopup.qml:62
 msgctxt "@tooltip:button"
@@ -5156,8 +5156,8 @@ msgstr "Ultimakerのサポート"
 
 #: /home/clamboo/Desktop/Cura/resources/qml/ApplicationSwitcher/ApplicationSwitcherPopup.qml:69
 msgctxt "@tooltip:button"
-msgid "Learn how to get started with Ultimaker Cura."
-msgstr "Ultimaker Curaの使用を開始する方法を確認します。"
+msgid "Learn how to get started with Zmorph Divid."
+msgstr "Zmorph Dividの使用を開始する方法を確認します。"
 
 #: /home/clamboo/Desktop/Cura/resources/qml/ApplicationSwitcher/ApplicationSwitcherPopup.qml:74
 msgctxt "@label:button"
@@ -6364,8 +6364,8 @@ msgstr "モデルチェッカー"
 #~ msgstr "Ultimaker Digital Factoryに接続"
 
 #~ msgctxt "@info"
-#~ msgid "Webcam feeds for cloud printers cannot be viewed from Ultimaker Cura."
-#~ msgstr "クラウドプリンターのウェブカムフィードをUltimaker Curaから見ることができません。"
+#~ msgid "Webcam feeds for cloud printers cannot be viewed from Zmorph Divid."
+#~ msgstr "クラウドプリンターのウェブカムフィードをZmorph Dividから見ることができません。"
 
 #~ msgctxt "@info Don't translate {machine_name}, since it gets replaced by a printer name!"
 #~ msgid "New features or bug-fixes may be available for your {machine_name}! If not already at the latest version, it is recommended to update the firmware on your printer to version {latest_version}."
@@ -6454,14 +6454,14 @@ msgstr "モデルチェッカー"
 #~ msgctxt "@text"
 #~ msgid ""
 #~ "Please follow these steps to set up\n"
-#~ "Ultimaker Cura. This will only take a few moments."
+#~ "Zmorph Divid. This will only take a few moments."
 #~ msgstr ""
 #~ "以下の手順で\n"
-#~ "Ultimaker Cura を設定してください。数秒で完了します。"
+#~ "Zmorph Divid を設定してください。数秒で完了します。"
 
 #~ msgctxt "@label"
-#~ msgid "What's new in Ultimaker Cura"
-#~ msgstr "Ultimaker Cura の新機能"
+#~ msgid "What's new in Zmorph Divid"
+#~ msgstr "Zmorph Divid の新機能"
 
 #~ msgctxt "@label ({} is object name)"
 #~ msgid "Are you sure you wish to remove {}? This cannot be undone!"
@@ -6713,8 +6713,8 @@ msgstr "モデルチェッカー"
 #~ msgstr "- 印刷ジョブをローカルネットワークの外から Ultimaker プリンターに送信します"
 
 #~ msgctxt "@text"
-#~ msgid "- Store your Ultimaker Cura settings in the cloud for use anywhere"
-#~ msgstr "- Ultimaker Cura の設定をクラウドに保管してどこらでも利用でいるようにします"
+#~ msgid "- Store your Zmorph Divid settings in the cloud for use anywhere"
+#~ msgstr "- Zmorph Divid の設定をクラウドに保管してどこらでも利用でいるようにします"
 
 #~ msgctxt "@text"
 #~ msgid "- Get exclusive access to print profiles from leading brands"
@@ -6731,11 +6731,11 @@ msgstr "モデルチェッカー"
 #~ msgctxt "@text"
 #~ msgid ""
 #~ "- Send print jobs to Ultimaker printers outside your local network\n"
-#~ "- Store your Ultimaker Cura settings in the cloud for use anywhere\n"
+#~ "- Store your Zmorph Divid settings in the cloud for use anywhere\n"
 #~ "- Get exclusive access to print profiles from leading brands"
 #~ msgstr ""
 #~ "印刷ジョブをローカルネットワークの外の Ultimaker プリンタに送信します\n"
-#~ "- Ultimaker Cura の設定をクラウドに保管してどこからでも利用できるようにします\n"
+#~ "- Zmorph Divid の設定をクラウドに保管してどこからでも利用できるようにします\n"
 #~ "- 有名ブランドから印刷プロファイルへの例外アクセスを取得します"
 
 #~ msgctxt "@title:window"
@@ -6801,8 +6801,8 @@ msgstr "モデルチェッカー"
 #~ msgstr "すべての設定を表示"
 
 #~ msgctxt "@title:window"
-#~ msgid "Ultimaker Cura"
-#~ msgstr "Ultimaker Cura"
+#~ msgid "Zmorph Divid"
+#~ msgstr "Zmorph Divid"
 
 #~ msgctxt "@title:window"
 #~ msgid "About Cura"
@@ -7454,11 +7454,11 @@ msgstr "モデルチェッカー"
 #~ msgctxt "@text"
 #~ msgid ""
 #~ "- Send print jobs to Ultimaker printers outside your local network\n"
-#~ "- Store your Ultimaker Cura settings in the cloud for use anywhere\n"
+#~ "- Store your Zmorph Divid settings in the cloud for use anywhere\n"
 #~ "- Get exclusive access to material profiles from leading brands"
 #~ msgstr ""
 #~ "- 印刷ジョブをローカルネットワークの外の Ultimaker プリンタに送信します\n"
-#~ "- Ultimaker Cura の設定をクラウドに保管してどこからでも利用できるようにします\n"
+#~ "- Zmorph Divid の設定をクラウドに保管してどこからでも利用できるようにします\n"
 #~ "- 有名ブランドから材料プロファイルへの例外アクセスを取得します"
 
 #~ msgctxt "@label:PrintjobStatus"

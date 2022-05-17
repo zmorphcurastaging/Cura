@@ -478,7 +478,7 @@ msgstr ""
 #: /home/clamboo/Desktop/Cura/cura/CrashHandler.py:113
 msgctxt "@label crash message"
 msgid ""
-"<p><b>Oops, Ultimaker Cura has encountered something that doesn't seem right."
+"<p><b>Oops, Zmorph Divid has encountered something that doesn't seem right."
 "</p></b>\n"
 "                    <p>We encountered an unrecoverable error during start "
 "up. It was possibly caused by some incorrect configuration files. We suggest "
@@ -492,7 +492,7 @@ msgstr ""
 
 #: /home/clamboo/Desktop/Cura/cura/CrashHandler.py:122
 msgctxt "@action:button"
-msgid "Send crash report to Ultimaker"
+msgid "Send crash report to Zmorph"
 msgstr ""
 
 #: /home/clamboo/Desktop/Cura/cura/CrashHandler.py:125
@@ -617,7 +617,7 @@ msgstr ""
 
 #: /home/clamboo/Desktop/Cura/cura/OAuth2/AuthorizationService.py:277
 msgctxt "@info"
-msgid "Unable to reach the Ultimaker account server."
+msgid "Unable to reach the Zmorph account server."
 msgstr ""
 
 #: /home/clamboo/Desktop/Cura/cura/OAuth2/AuthorizationService.py:278
@@ -1073,7 +1073,7 @@ msgstr ""
 msgctxt "@info:error Don't translate the XML tag <filename>!"
 msgid ""
 "Project file <filename>{0}</filename> is made using profiles that are "
-"unknown to this version of Ultimaker Cura."
+"unknown to this version of Zmorph Divid."
 msgstr ""
 
 #: /home/clamboo/Desktop/Cura/plugins/3MFReader/__init__.py:27
@@ -1094,7 +1094,7 @@ msgstr ""
 #: /home/clamboo/Desktop/Cura/plugins/UFPWriter/__init__.py:28
 #: /home/clamboo/Desktop/Cura/plugins/UFPReader/__init__.py:22
 msgctxt "@item:inlistbox"
-msgid "Ultimaker Format Package"
+msgid "Zmorph Format Package"
 msgstr ""
 
 #: /home/clamboo/Desktop/Cura/plugins/GCodeProfileReader/__init__.py:14
@@ -1144,7 +1144,7 @@ msgstr ""
 
 #: /home/clamboo/Desktop/Cura/plugins/CuraEngineBackend/CuraEngineBackend.py:168
 msgctxt "@message:description"
-msgid "Report a bug on Ultimaker Cura's issue tracker."
+msgid "Report a bug on Zmorph Divid's issue tracker."
 msgstr ""
 
 #: /home/clamboo/Desktop/Cura/plugins/CuraEngineBackend/CuraEngineBackend.py:395
@@ -1375,7 +1375,7 @@ msgstr ""
 #: /home/clamboo/Desktop/Cura/plugins/Toolbox/src/CloudSync/DownloadPresenter.py:95
 #: /home/clamboo/Desktop/Cura/plugins/Toolbox/src/CloudSync/CloudPackageChecker.py:143
 msgctxt "@info:title"
-msgid "Changes detected from your Ultimaker account"
+msgid "Changes detected from your Zmorph account"
 msgstr ""
 
 #: /home/clamboo/Desktop/Cura/plugins/Toolbox/src/CloudSync/CloudPackageChecker.py:142
@@ -1509,7 +1509,7 @@ msgstr ""
 #: /home/clamboo/Desktop/Cura/plugins/UM3NetworkPrinting/src/Messages/LegacyDeviceNoLongerSupportedMessage.py:18
 msgctxt "@info:status"
 msgid ""
-"You are attempting to connect to a printer that is not running Ultimaker "
+"You are attempting to connect to a printer that is not running Zmorph "
 "Connect. Please update the printer to the latest firmware."
 msgstr ""
 
@@ -1625,7 +1625,7 @@ msgstr ""
 
 #: /home/clamboo/Desktop/Cura/plugins/UM3NetworkPrinting/src/Cloud/CloudOutputDevice.py:263
 msgctxt "@action:tooltip"
-msgid "Track the print in Ultimaker Digital Factory"
+msgid "Track the print in Zmorph Digital Factory"
 msgstr ""
 
 #: /home/clamboo/Desktop/Cura/plugins/UM3NetworkPrinting/src/Cloud/CloudOutputDevice.py:279
@@ -1636,8 +1636,8 @@ msgstr ""
 
 #: /home/clamboo/Desktop/Cura/plugins/UM3NetworkPrinting/src/Cloud/CloudOutputDeviceManager.py:229
 msgctxt "info:status"
-msgid "New printer detected from your Ultimaker account"
-msgid_plural "New printers detected from your Ultimaker account"
+msgid "New printer detected from your Zmorph account"
+msgid_plural "New printers detected from your Zmorph account"
 msgstr[0] ""
 msgstr[1] ""
 
@@ -1677,7 +1677,7 @@ msgstr[1] ""
 #: /home/clamboo/Desktop/Cura/plugins/UM3NetworkPrinting/src/Cloud/CloudOutputDeviceManager.py:342
 #: /home/clamboo/Desktop/Cura/plugins/UM3NetworkPrinting/src/Cloud/CloudOutputDeviceManager.py:432
 msgctxt "info:name"
-msgid "Ultimaker Digital Factory"
+msgid "Zmorph Digital Factory"
 msgstr ""
 
 #: /home/clamboo/Desktop/Cura/plugins/UM3NetworkPrinting/src/Cloud/CloudOutputDeviceManager.py:346
@@ -2535,7 +2535,7 @@ msgstr ""
 
 #: /home/clamboo/Desktop/Cura/plugins/UltimakerMachineActions/UMOUpgradeSelectionMachineAction.qml:30
 msgctxt "@label"
-msgid "Please select any upgrades made to this Ultimaker Original"
+msgid "Please select any upgrades made to this Zmorph Original"
 msgstr ""
 
 #: /home/clamboo/Desktop/Cura/plugins/UltimakerMachineActions/UMOUpgradeSelectionMachineAction.qml:41
@@ -2582,7 +2582,7 @@ msgstr ""
 #: /home/clamboo/Desktop/Cura/plugins/SliceInfoPlugin/MoreInfoWindow.qml:74
 msgctxt "@text:window"
 msgid ""
-"Ultimaker Cura collects anonymous data in order to improve the print quality "
+"Zmorph Divid collects anonymous data in order to improve the print quality "
 "and user experience. Below is an example of all the data that is shared:"
 msgstr ""
 
@@ -2786,7 +2786,7 @@ msgstr ""
 #: /home/clamboo/Desktop/Cura/plugins/Toolbox/resources/qml/pages/WelcomePage.qml:22
 msgctxt "@description"
 msgid ""
-"Please sign in to get verified plugins and materials for Ultimaker Cura "
+"Please sign in to get verified plugins and materials for Zmorph Divid "
 "Enterprise"
 msgstr ""
 
@@ -3028,8 +3028,8 @@ msgstr ""
 #: /home/clamboo/Desktop/Cura/plugins/UM3NetworkPrinting/resources/qml/MonitorPrinterCard.qml:288
 msgctxt "@info"
 msgid ""
-"Webcam feeds for cloud printers cannot be viewed from Ultimaker Cura. Click "
-"\"Manage printer\" to visit Ultimaker Digital Factory and view this webcam."
+"Webcam feeds for cloud printers cannot be viewed from Zmorph Divid. Click "
+"\"Manage printer\" to visit Zmorph Digital Factory and view this webcam."
 msgstr ""
 
 #: /home/clamboo/Desktop/Cura/plugins/UM3NetworkPrinting/resources/qml/MonitorPrinterCard.qml:348
@@ -3671,7 +3671,7 @@ msgstr ""
 #: /home/clamboo/Desktop/Cura/resources/qml/WelcomePages/AddPrinterByIpContent.qml:207
 #: /home/clamboo/Desktop/Cura/resources/qml/WelcomePages/AddPrinterByIpContent.qml:212
 msgctxt "@label"
-msgid "Can't connect to your Ultimaker printer?"
+msgid "Can't connect to your Zmorph printer?"
 msgstr ""
 
 #: /home/clamboo/Desktop/Cura/resources/qml/WelcomePages/AddPrinterByIpContent.qml:211
@@ -3709,13 +3709,13 @@ msgstr ""
 
 #: /home/clamboo/Desktop/Cura/resources/qml/WelcomePages/WelcomeContent.qml:56
 msgctxt "@label"
-msgid "Welcome to Ultimaker Cura"
+msgid "Welcome to Zmorph Divid"
 msgstr ""
 
 #: /home/clamboo/Desktop/Cura/resources/qml/WelcomePages/WelcomeContent.qml:68
 msgctxt "@text"
 msgid ""
-"Please follow these steps to set up Ultimaker Cura. This will only take a "
+"Please follow these steps to set up Zmorph Divid. This will only take a "
 "few moments."
 msgstr ""
 
@@ -3727,7 +3727,7 @@ msgstr ""
 #: /home/clamboo/Desktop/Cura/resources/qml/WelcomePages/CloudContent.qml:64
 #: /home/clamboo/Desktop/Cura/resources/qml/Account/GeneralOperations.qml:20
 msgctxt "@label"
-msgid "Sign in to the Ultimaker platform"
+msgid "Sign in to the Zmorph platform"
 msgstr ""
 
 #: /home/clamboo/Desktop/Cura/resources/qml/WelcomePages/CloudContent.qml:124
@@ -3742,7 +3742,7 @@ msgstr ""
 
 #: /home/clamboo/Desktop/Cura/resources/qml/WelcomePages/CloudContent.qml:184
 msgctxt "@text"
-msgid "Share ideas and get help from 48,000+ users in the Ultimaker Community"
+msgid "Share ideas and get help from 48,000+ users in the Zmorph Community"
 msgstr ""
 
 #: /home/clamboo/Desktop/Cura/resources/qml/WelcomePages/CloudContent.qml:202
@@ -3752,7 +3752,7 @@ msgstr ""
 
 #: /home/clamboo/Desktop/Cura/resources/qml/WelcomePages/CloudContent.qml:214
 msgctxt "@text"
-msgid "Create a free Ultimaker Account"
+msgid "Create a free Zmorph Account"
 msgstr ""
 
 #: /home/clamboo/Desktop/Cura/resources/qml/WelcomePages/AddLocalPrinterScrollView.qml:234
@@ -3802,13 +3802,13 @@ msgstr ""
 
 #: /home/clamboo/Desktop/Cura/resources/qml/WelcomePages/DataCollectionsContent.qml:24
 msgctxt "@label"
-msgid "Help us to improve Ultimaker Cura"
+msgid "Help us to improve Zmorh Divid"
 msgstr ""
 
 #: /home/clamboo/Desktop/Cura/resources/qml/WelcomePages/DataCollectionsContent.qml:57
 msgctxt "@text"
 msgid ""
-"Ultimaker Cura collects anonymous data to improve print quality and user "
+"Zmorph Divid collects anonymous data to improve print quality and user "
 "experience, including:"
 msgstr ""
 
@@ -3835,7 +3835,7 @@ msgstr ""
 #: /home/clamboo/Desktop/Cura/resources/qml/WelcomePages/DataCollectionsContent.qml:102
 msgctxt "@text"
 msgid ""
-"Data collected by Ultimaker Cura will not contain any personal information."
+"Data collected by Zmorph Divid will not contain any personal information."
 msgstr ""
 
 #: /home/clamboo/Desktop/Cura/resources/qml/WelcomePages/DataCollectionsContent.qml:103
@@ -3876,7 +3876,7 @@ msgstr ""
 #: /home/clamboo/Desktop/Cura/resources/qml/Dialogs/AboutDialog.qml:85
 msgctxt "@info:credit"
 msgid ""
-"Cura is developed by Ultimaker B.V. in cooperation with the community.\n"
+"Cura is developed by Zmorph in cooperation with the community.\n"
 "Cura proudly uses the following open source projects:"
 msgstr ""
 
@@ -4181,7 +4181,7 @@ msgstr ""
 #: /home/clamboo/Desktop/Cura/resources/qml/PrinterSelector/MachineSelector.qml:51
 msgctxt "@status"
 msgid ""
-"This printer is not linked to your account. Please visit the Ultimaker "
+"This printer is not linked to your account. Please visit the Zmorph "
 "Digital Factory to establish a connection."
 msgstr ""
 
@@ -5010,7 +5010,7 @@ msgstr ""
 #: /home/clamboo/Desktop/Cura/resources/qml/Preferences/GeneralPage.qml:797
 msgctxt "@info:tooltip"
 msgid ""
-"Should anonymous data about your print be sent to Ultimaker? Note, no "
+"Should anonymous data about your print be sent to Zmorph? Note, no "
 "models, IP addresses or other personally identifiable information is sent or "
 "stored."
 msgstr ""
@@ -5490,7 +5490,7 @@ msgstr ""
 
 #: /home/clamboo/Desktop/Cura/resources/qml/ApplicationSwitcher/ApplicationSwitcherPopup.qml:34
 msgctxt "@tooltip:button"
-msgid "Monitor printers in Ultimaker Digital Factory."
+msgid "Monitor printers in Zmorph Digital Factory."
 msgstr ""
 
 #: /home/clamboo/Desktop/Cura/resources/qml/ApplicationSwitcher/ApplicationSwitcherPopup.qml:41
@@ -5510,22 +5510,22 @@ msgstr ""
 
 #: /home/clamboo/Desktop/Cura/resources/qml/ApplicationSwitcher/ApplicationSwitcherPopup.qml:55
 msgctxt "@tooltip:button"
-msgid "Extend Ultimaker Cura with plugins and material profiles."
+msgid "Extend Zmorph Divid with plugins and material profiles."
 msgstr ""
 
 #: /home/clamboo/Desktop/Cura/resources/qml/ApplicationSwitcher/ApplicationSwitcherPopup.qml:62
 msgctxt "@tooltip:button"
-msgid "Become a 3D printing expert with Ultimaker e-learning."
+msgid "Become a 3D printing expert with Zmorph e-learning."
 msgstr ""
 
 #: /home/clamboo/Desktop/Cura/resources/qml/ApplicationSwitcher/ApplicationSwitcherPopup.qml:67
 msgctxt "@label:button"
-msgid "Ultimaker support"
+msgid "Zmorph support"
 msgstr ""
 
 #: /home/clamboo/Desktop/Cura/resources/qml/ApplicationSwitcher/ApplicationSwitcherPopup.qml:69
 msgctxt "@tooltip:button"
-msgid "Learn how to get started with Ultimaker Cura."
+msgid "Learn how to get started with Zmorph Divid."
 msgstr ""
 
 #: /home/clamboo/Desktop/Cura/resources/qml/ApplicationSwitcher/ApplicationSwitcherPopup.qml:74
@@ -5535,7 +5535,7 @@ msgstr ""
 
 #: /home/clamboo/Desktop/Cura/resources/qml/ApplicationSwitcher/ApplicationSwitcherPopup.qml:76
 msgctxt "@tooltip:button"
-msgid "Consult the Ultimaker Community."
+msgid "Consult the Zmorph Community."
 msgstr ""
 
 #: /home/clamboo/Desktop/Cura/resources/qml/ApplicationSwitcher/ApplicationSwitcherPopup.qml:81
@@ -5550,7 +5550,7 @@ msgstr ""
 
 #: /home/clamboo/Desktop/Cura/resources/qml/ApplicationSwitcher/ApplicationSwitcherPopup.qml:90
 msgctxt "@tooltip:button"
-msgid "Visit the Ultimaker website."
+msgid "Visit the Zmorph website."
 msgstr ""
 
 #: /home/clamboo/Desktop/Cura/resources/qml/PrinterOutput/ManualPrinterControl.qml:52
@@ -5692,12 +5692,12 @@ msgctxt "@text"
 msgid ""
 "- Add material profiles and plug-ins from the Marketplace\n"
 "- Back-up and sync your material profiles and plug-ins\n"
-"- Share ideas and get help from 48,000+ users in the Ultimaker community"
+"- Share ideas and get help from 48,000+ users in the Zmorph community"
 msgstr ""
 
 #: /home/clamboo/Desktop/Cura/resources/qml/Account/GeneralOperations.qml:62
 msgctxt "@button"
-msgid "Create a free Ultimaker account"
+msgid "Create a free Zmorph account"
 msgstr ""
 
 #: /home/clamboo/Desktop/Cura/resources/qml/Account/UserOperations.qml:82
@@ -5707,7 +5707,7 @@ msgstr ""
 
 #: /home/clamboo/Desktop/Cura/resources/qml/Account/UserOperations.qml:110
 msgctxt "@button"
-msgid "Ultimaker Account"
+msgid "Zmorph Account"
 msgstr ""
 
 #: /home/clamboo/Desktop/Cura/resources/qml/Account/UserOperations.qml:126
@@ -6225,7 +6225,7 @@ msgstr ""
 
 #: UFPWriter/plugin.json
 msgctxt "description"
-msgid "Provides support for writing Ultimaker Format Packages."
+msgid "Provides support for writing Zmorph Format Packages."
 msgstr ""
 
 #: UFPWriter/plugin.json
@@ -6367,13 +6367,13 @@ msgstr ""
 #: UltimakerMachineActions/plugin.json
 msgctxt "description"
 msgid ""
-"Provides machine actions for Ultimaker machines (such as bed leveling "
+"Provides machine actions for Zmorph machines (such as bed leveling "
 "wizard, selecting upgrades, etc.)."
 msgstr ""
 
 #: UltimakerMachineActions/plugin.json
 msgctxt "name"
-msgid "Ultimaker machine actions"
+msgid "Zmorph machine actions"
 msgstr ""
 
 #: GCodeGzWriter/plugin.json
@@ -6425,7 +6425,7 @@ msgstr ""
 
 #: DigitalLibrary/plugin.json
 msgctxt "name"
-msgid "Ultimaker Digital Library"
+msgid "Zmorph Digital Library"
 msgstr ""
 
 #: Toolbox/plugin.json
@@ -6680,12 +6680,12 @@ msgstr ""
 
 #: UM3NetworkPrinting/plugin.json
 msgctxt "description"
-msgid "Manages network connections to Ultimaker networked printers."
+msgid "Manages network connections to Zmorph networked printers."
 msgstr ""
 
 #: UM3NetworkPrinting/plugin.json
 msgctxt "name"
-msgid "Ultimaker Network Connection"
+msgid "Zmorph Network Connection"
 msgstr ""
 
 #: TrimeshReader/plugin.json
@@ -6700,7 +6700,7 @@ msgstr ""
 
 #: UFPReader/plugin.json
 msgctxt "description"
-msgid "Provides support for reading Ultimaker Format Packages."
+msgid "Provides support for reading Zmorph Format Packages."
 msgstr ""
 
 #: UFPReader/plugin.json

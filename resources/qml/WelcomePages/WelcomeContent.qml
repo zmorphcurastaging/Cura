@@ -53,7 +53,7 @@ Item
             id: titleLabel
             anchors.horizontalCenter: parent.horizontalCenter
             horizontalAlignment: Text.AlignHCenter
-            text: catalog.i18nc("@label", "Welcome to Zmorph Voxelizer")
+            text: catalog.i18nc("@label", "Welcome to Zmorph Divid")
             color: UM.Theme.getColor("primary")
             font: UM.Theme.getFont("huge_bold")
             renderType: Text.NativeRendering

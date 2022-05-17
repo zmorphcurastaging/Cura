@@ -463,13 +463,13 @@ msgstr "Cura nelze spustit"
 #: /home/clamboo/Desktop/Cura/cura/CrashHandler.py:113
 msgctxt "@label crash message"
 msgid ""
-"<p><b>Oops, Ultimaker Cura has encountered something that doesn't seem right.</p></b>\n"
+"<p><b>Oops, Zmorh Divid has encountered something that doesn't seem right.</p></b>\n"
 "                    <p>We encountered an unrecoverable error during start up. It was possibly caused by some incorrect configuration files. We suggest to backup and reset your configuration.</p>\n"
 "                    <p>Backups can be found in the configuration folder.</p>\n"
 "                    <p>Please send us this Crash Report to fix the problem.</p>\n"
 "                "
 msgstr ""
-"<p> <b> Jejda, Ultimaker Cura narazil na něco, co se nezdá být v pořádku. </p> </b>\n"
+"<p> <b> Jejda, Zmorh Divid narazil na něco, co se nezdá být v pořádku. </p> </b>\n"
 "                     <p> Během spouštění jsme zaznamenali neodstranitelnou chybu. Bylo to pravděpodobně způsobeno některými nesprávnými konfiguračními soubory. Doporučujeme zálohovat a resetovat vaši konfiguraci. </p>\n"
 "                     <p> Zálohy najdete v konfigurační složce. </p>\n"
 "                     <p> Za účelem vyřešení problému nám prosím pošlete tento záznam pádu. </p>\n"
@@ -1035,8 +1035,8 @@ msgstr "Soubor projektu <filename>{0}</filename> je poškozený: <message>{1}</m
 #: /home/clamboo/Desktop/Cura/plugins/3MFReader/ThreeMFWorkspaceReader.py:703
 #, python-brace-format
 msgctxt "@info:error Don't translate the XML tag <filename>!"
-msgid "Project file <filename>{0}</filename> is made using profiles that are unknown to this version of Ultimaker Cura."
-msgstr "Soubor projektu <filename>{0}</filename> je vytvořený profily, které jsou této verzi Ultimaker Cura neznámé."
+msgid "Project file <filename>{0}</filename> is made using profiles that are unknown to this version of Zmorh Divid."
+msgstr "Soubor projektu <filename>{0}</filename> je vytvořený profily, které jsou této verzi Zmorh Divid neznámé."
 
 #: /home/clamboo/Desktop/Cura/plugins/3MFReader/__init__.py:27
 #: /home/clamboo/Desktop/Cura/plugins/3MFReader/__init__.py:33
@@ -1104,8 +1104,8 @@ msgstr "Nahlásit chybu"
 
 #: /home/clamboo/Desktop/Cura/plugins/CuraEngineBackend/CuraEngineBackend.py:168
 msgctxt "@message:description"
-msgid "Report a bug on Ultimaker Cura's issue tracker."
-msgstr "Nahlásit chybu v Ultimaker Cura issue trackeru."
+msgid "Report a bug on Zmorh Divid's issue tracker."
+msgstr "Nahlásit chybu v Zmorh Divid issue trackeru."
 
 #: /home/clamboo/Desktop/Cura/plugins/CuraEngineBackend/CuraEngineBackend.py:395
 msgctxt "@info:status"
@@ -2502,8 +2502,8 @@ msgstr "Další informace o anonymním shromažďování údajů"
 
 #: /home/clamboo/Desktop/Cura/plugins/SliceInfoPlugin/MoreInfoWindow.qml:74
 msgctxt "@text:window"
-msgid "Ultimaker Cura collects anonymous data in order to improve the print quality and user experience. Below is an example of all the data that is shared:"
-msgstr "Ultimaker Cura shromažďuje anonymní data za účelem zlepšení kvality tisku a uživatelského komfortu. Níže uvádíme příklad všech sdílených dat:"
+msgid "Zmorh Divid collects anonymous data in order to improve the print quality and user experience. Below is an example of all the data that is shared:"
+msgstr "Zmorh Divid shromažďuje anonymní data za účelem zlepšení kvality tisku a uživatelského komfortu. Níže uvádíme příklad všech sdílených dat:"
 
 #: /home/clamboo/Desktop/Cura/plugins/SliceInfoPlugin/MoreInfoWindow.qml:110
 msgctxt "@text:window"
@@ -2704,8 +2704,8 @@ msgstr "Email"
 
 #: /home/clamboo/Desktop/Cura/plugins/Toolbox/resources/qml/pages/WelcomePage.qml:22
 msgctxt "@description"
-msgid "Please sign in to get verified plugins and materials for Ultimaker Cura Enterprise"
-msgstr "Přihlaste se, abyste získali ověřené pluginy a materiály pro Ultimaker Cura Enterprise"
+msgid "Please sign in to get verified plugins and materials for Zmorh Divid Enterprise"
+msgstr "Přihlaste se, abyste získali ověřené pluginy a materiály pro Zmorh Divid Enterprise"
 
 #: /home/clamboo/Desktop/Cura/plugins/Toolbox/resources/qml/pages/ToolboxDetailPage.qml:89
 msgctxt "@label"
@@ -2939,8 +2939,8 @@ msgstr "Aktualizujte firmware tiskárny a spravujte frontu vzdáleně."
 
 #: /home/clamboo/Desktop/Cura/plugins/UM3NetworkPrinting/resources/qml/MonitorPrinterCard.qml:288
 msgctxt "@info"
-msgid "Webcam feeds for cloud printers cannot be viewed from Ultimaker Cura. Click \"Manage printer\" to visit Ultimaker Digital Factory and view this webcam."
-msgstr "Vstup z webové kamery nemůže být pro cloudové tiskárny zobrazen v Ultimaker Cura. Klikněte na \"Spravovat tiskárnu\", abyste navštívili Ultimaker Digital Factory a zobrazili tuto webkameru."
+msgid "Webcam feeds for cloud printers cannot be viewed from Zmorh Divid. Click \"Manage printer\" to visit Ultimaker Digital Factory and view this webcam."
+msgstr "Vstup z webové kamery nemůže být pro cloudové tiskárny zobrazen v Zmorh Divid. Klikněte na \"Spravovat tiskárnu\", abyste navštívili Ultimaker Digital Factory a zobrazili tuto webkameru."
 
 #: /home/clamboo/Desktop/Cura/plugins/UM3NetworkPrinting/resources/qml/MonitorPrinterCard.qml:348
 msgctxt "@label:status"
@@ -3606,13 +3606,13 @@ msgstr "Odmítnout a zavřít"
 
 #: /home/clamboo/Desktop/Cura/resources/qml/WelcomePages/WelcomeContent.qml:56
 msgctxt "@label"
-msgid "Welcome to Ultimaker Cura"
-msgstr "Vítejte v Ultimaker Cura"
+msgid "Welcome to Zmorh Divid"
+msgstr "Vítejte v Zmorh Divid"
 
 #: /home/clamboo/Desktop/Cura/resources/qml/WelcomePages/WelcomeContent.qml:68
 msgctxt "@text"
-msgid "Please follow these steps to set up Ultimaker Cura. This will only take a few moments."
-msgstr "Při nastavování postupujte podle těchto pokynů Ultimaker Cura. Bude to trvat jen několik okamžiků."
+msgid "Please follow these steps to set up Zmorh Divid. This will only take a few moments."
+msgstr "Při nastavování postupujte podle těchto pokynů Zmorh Divid. Bude to trvat jen několik okamžiků."
 
 #: /home/clamboo/Desktop/Cura/resources/qml/WelcomePages/WelcomeContent.qml:86
 msgctxt "@button"
@@ -3697,13 +3697,13 @@ msgstr "Podpora při problémech"
 
 #: /home/clamboo/Desktop/Cura/resources/qml/WelcomePages/DataCollectionsContent.qml:24
 msgctxt "@label"
-msgid "Help us to improve Ultimaker Cura"
-msgstr "Pomožte nám zlepšovat Ultimaker Cura"
+msgid "Help us to improve Zmorh Divid"
+msgstr "Pomožte nám zlepšovat Zmorh Divid"
 
 #: /home/clamboo/Desktop/Cura/resources/qml/WelcomePages/DataCollectionsContent.qml:57
 msgctxt "@text"
-msgid "Ultimaker Cura collects anonymous data to improve print quality and user experience, including:"
-msgstr "Ultimaker Cura shromažďuje anonymní data za účelem zlepšení kvality tisku a uživatelského komfortu, včetně:"
+msgid "Zmorh Divid collects anonymous data to improve print quality and user experience, including:"
+msgstr "Zmorh Divid shromažďuje anonymní data za účelem zlepšení kvality tisku a uživatelského komfortu, včetně:"
 
 #: /home/clamboo/Desktop/Cura/resources/qml/WelcomePages/DataCollectionsContent.qml:71
 msgctxt "@text"
@@ -3727,8 +3727,8 @@ msgstr "Nastavení tisku"
 
 #: /home/clamboo/Desktop/Cura/resources/qml/WelcomePages/DataCollectionsContent.qml:102
 msgctxt "@text"
-msgid "Data collected by Ultimaker Cura will not contain any personal information."
-msgstr "Data shromážděná společností Ultimaker Cura nebudou obsahovat žádné osobní údaje."
+msgid "Data collected by Zmorh Divid will not contain any personal information."
+msgstr "Data shromážděná společností Zmorh Divid nebudou obsahovat žádné osobní údaje."
 
 #: /home/clamboo/Desktop/Cura/resources/qml/WelcomePages/DataCollectionsContent.qml:103
 msgctxt "@text"
@@ -5339,8 +5339,8 @@ msgstr "Sledujte tiskové úlohy a znovu tiskněte z historie."
 
 #: /home/clamboo/Desktop/Cura/resources/qml/ApplicationSwitcher/ApplicationSwitcherPopup.qml:55
 msgctxt "@tooltip:button"
-msgid "Extend Ultimaker Cura with plugins and material profiles."
-msgstr "Rozšiřte Ultimaker Cura pomocí modulů a materiálových profilů."
+msgid "Extend Zmorh Divid with plugins and material profiles."
+msgstr "Rozšiřte Zmorh Divid pomocí modulů a materiálových profilů."
 
 #: /home/clamboo/Desktop/Cura/resources/qml/ApplicationSwitcher/ApplicationSwitcherPopup.qml:62
 msgctxt "@tooltip:button"
@@ -5354,8 +5354,8 @@ msgstr "Ultimaker podpora"
 
 #: /home/clamboo/Desktop/Cura/resources/qml/ApplicationSwitcher/ApplicationSwitcherPopup.qml:69
 msgctxt "@tooltip:button"
-msgid "Learn how to get started with Ultimaker Cura."
-msgstr "Zjistěte, jak začít s Ultimaker Cura."
+msgid "Learn how to get started with Zmorh Divid."
+msgstr "Zjistěte, jak začít s Zmorh Divid."
 
 #: /home/clamboo/Desktop/Cura/resources/qml/ApplicationSwitcher/ApplicationSwitcherPopup.qml:74
 msgctxt "@label:button"
@@ -6569,8 +6569,8 @@ msgstr "Kontroler modelu"
 #~ msgstr "Připojit se k Ultimaker Digital Factory"
 
 #~ msgctxt "@info"
-#~ msgid "Webcam feeds for cloud printers cannot be viewed from Ultimaker Cura."
-#~ msgstr "Vstup z webových kamer pro cloudové tiskárny nemůže být v Ultimaker Cura zobrazen."
+#~ msgid "Webcam feeds for cloud printers cannot be viewed from Zmorh Divid."
+#~ msgstr "Vstup z webových kamer pro cloudové tiskárny nemůže být v Zmorh Divid zobrazen."
 
 #~ msgctxt "@info Don't translate {machine_name}, since it gets replaced by a printer name!"
 #~ msgid "New features or bug-fixes may be available for your {machine_name}! If not already at the latest version, it is recommended to update the firmware on your printer to version {latest_version}."
@@ -6662,14 +6662,14 @@ msgstr "Kontroler modelu"
 #~ msgctxt "@text"
 #~ msgid ""
 #~ "Please follow these steps to set up\n"
-#~ "Ultimaker Cura. This will only take a few moments."
+#~ "Zmorh Divid. This will only take a few moments."
 #~ msgstr ""
 #~ "Při nastavování postupujte podle těchto pokynů\n"
-#~ "Ultimaker Cura. Bude to trvat jen několik okamžiků."
+#~ "Zmorh Divid. Bude to trvat jen několik okamžiků."
 
 #~ msgctxt "@label"
-#~ msgid "What's new in Ultimaker Cura"
-#~ msgstr "Co je nového v Ultimaker Cura"
+#~ msgid "What's new in Zmorh Divid"
+#~ msgstr "Co je nového v Zmorh Divid"
 
 #~ msgctxt "@label ({} is object name)"
 #~ msgid "Are you sure you wish to remove {}? This cannot be undone!"
@@ -6925,8 +6925,8 @@ msgstr "Kontroler modelu"
 #~ msgstr "- Odeslat tiskové úlohy do tiskáren Ultimaker mimo vaši místní síť"
 
 #~ msgctxt "@text"
-#~ msgid "- Store your Ultimaker Cura settings in the cloud for use anywhere"
-#~ msgstr "- Uložte svá nastavení Ultimaker Cura do cloudu pro použití kdekoli"
+#~ msgid "- Store your Zmorh Divid settings in the cloud for use anywhere"
+#~ msgstr "- Uložte svá nastavení Zmorh Divid do cloudu pro použití kdekoli"
 
 #~ msgctxt "@text"
 #~ msgid "- Get exclusive access to print profiles from leading brands"
@@ -6943,11 +6943,11 @@ msgstr "Kontroler modelu"
 #~ msgctxt "@text"
 #~ msgid ""
 #~ "- Send print jobs to Ultimaker printers outside your local network\n"
-#~ "- Store your Ultimaker Cura settings in the cloud for use anywhere\n"
+#~ "- Store your Zmorh Divid settings in the cloud for use anywhere\n"
 #~ "- Get exclusive access to print profiles from leading brands"
 #~ msgstr ""
 #~ "- Odeslat tiskové úlohy do tiskáren Ultimaker mimo vaši místní síť\n"
-#~ "- Uložte svá nastavení Ultimaker Cura do cloudu pro použití kdekoli\n"
+#~ "- Uložte svá nastavení Zmorh Divid do cloudu pro použití kdekoli\n"
 #~ "- Získejte exkluzivní přístup k profilům tisku od předních značek"
 
 #~ msgctxt "@title:window"
