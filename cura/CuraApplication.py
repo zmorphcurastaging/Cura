@@ -156,7 +156,7 @@ class CuraApplication(QtApplication):
                          api_version = ApplicationMetadata.CuraSDKVersion,
                          build_type = ApplicationMetadata.CuraBuildType,
                          is_debug_mode = ApplicationMetadata.CuraDebugMode,
-                         tray_icon_name = "cura-icon-32.png",
+                         tray_icon_name = "divid-icon-32.png",
                          **kwargs)
 
         self.default_theme = "cura-light"
@@ -484,7 +484,7 @@ class CuraApplication(QtApplication):
 
         if not self.getIsHeadLess():
             try:
-                self.setWindowIcon(QIcon(Resources.getPath(Resources.Images, "cura-icon.png")))
+                self.setWindowIcon(QIcon(Resources.getPath(Resources.Images, "divid-icon.png")))
             except FileNotFoundError:
                 Logger.log("w", "Unable to find the window icon.")
 

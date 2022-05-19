@@ -99,7 +99,7 @@ class WhatsNewPagesModel(WelcomePagesModel):
     @pyqtSlot(int, result = str)
     def getSubpageImageSource(self, page: int) -> str:
         result = self._getSubpageItem(page, WhatsNewPagesModel.image_key)
-        return "file:///" + (result if result else Resources.getPath(Resources.Images, "cura-icon.png"))
+        return "file:///" + (result if result else Resources.getPath(Resources.Images, "divid-icon.png"))
 
     @pyqtSlot(int, result = str)
     def getSubpageText(self, page: int) -> str:
