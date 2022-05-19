@@ -3876,8 +3876,8 @@ msgstr ""
 #: /home/clamboo/Desktop/Cura/resources/qml/Dialogs/AboutDialog.qml:85
 msgctxt "@info:credit"
 msgid ""
-"Cura is developed by Zmorph in cooperation with the community.\n"
-"Cura proudly uses the following open source projects:"
+"Divid is developed by Zmorph in cooperation with the community.\n"
+"Divid proudly uses the following open source projects:"
 msgstr ""
 
 #: /home/clamboo/Desktop/Cura/resources/qml/Dialogs/AboutDialog.qml:135
